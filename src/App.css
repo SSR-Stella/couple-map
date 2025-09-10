@@ -1,5 +1,8 @@
 /* ========= macOS-ish Design Tokens ========= */
 :root {
+  background: url("https://cdn.jsdelivr.net/gh/SSR-Stella/couple-map/image/50F6A931-D48C-4663-8A5E-8A5186C8AFB7.png")
+  no-repeat center center fixed;
+  background-size: cover;
   --bg: #f5f6f7;
   --fg: #1c1d20;
   --muted: #5f6368;
@@ -16,16 +19,13 @@
                Helvetica,Arial,"PingFang SC","Hiragino Sans GB",
                "Microsoft YaHei",sans-serif;
   line-height: 1.5;
-  color: var(--fg);
-  background: var(--bg);
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   min-width: 320px;
   height: 100%;
-  background: url("https://cdn.jsdelivr.net/gh/SSR-Stella/couple-map/image/50F6A931-D48C-4663-8A5E-8A5186C8AFB7.png")
-    no-repeat center center fixed;
-  background-size: cover;
+
 }
 
 /* 深色模式 */
@@ -115,7 +115,6 @@ body { margin: 0; min-width: 320px; }
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   border-radius: 12px;
-  margin: 8px;   /* 让边缘留一点空间，背景能透出来 */
   overflow: hidden;
 }
 
