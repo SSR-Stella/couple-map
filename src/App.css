@@ -75,7 +75,6 @@ body { margin: 0; min-width: 320px; }
   background:
     linear-gradient(to bottom, rgba(255,255,255,.9), rgba(255,255,255,.75)) padding-box,
     linear-gradient(to bottom, rgba(255,255,255,.4), rgba(0,0,0,.04)) border-box;
-  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
   font-weight: 700;     /* 黑体 */
   color: #000;          /* 黑色文字 */
   box-shadow: 0 1px 0 rgba(255,255,255,.5) inset;
