@@ -68,7 +68,7 @@ function fmt(t) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-// 线性音量渐变
+// 线性音量渐变（淡入淡出 200ms）
 async function fadeTo(audio, target = 1, duration = 200) {
   if (!audio) return;
   const start = audio.volume;
@@ -82,11 +82,8 @@ async function fadeTo(audio, target = 1, duration = 200) {
     function step(now) {
       const p = Math.min(1, (now - startTime) / duration);
       audio.volume = start + diff * p;
-      if (p < 1) {
-        requestAnimationFrame(step);
-      } else {
-        resolve();
-      }
+      if (p < 1) requestAnimationFrame(step);
+      else resolve();
     }
     requestAnimationFrame(step);
   });
@@ -119,8 +116,9 @@ export default function App() {
   // 音频控制
   const audioRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null); // { name, city, url, playing, muted, cur, dur, seeking }
-  const lastNonZeroVol = useRef(1); // 记住静音前的音量
+  const lastNonZeroVol = useRef(1);
 
+  // 修复 Leaflet 默认 marker 图标
   useEffect(() => {
     try {
       // eslint-disable-next-line no-underscore-dangle
@@ -133,6 +131,7 @@ export default function App() {
     } catch {}
   }, []);
 
+  // 初始化世界地图 + 尺寸刷新
   useEffect(() => {
     if (map) return;
     const m = L.map("map", { worldCopyJump: true });
@@ -142,8 +141,15 @@ export default function App() {
     }).addTo(m);
     m.setView([20, 0], 2);
     setMap(m);
+
+    // 等一帧再刷新尺寸，避免容器高度还没算好
+    setTimeout(() => m.invalidateSize(), 0);
+    const onResize = () => m.invalidateSize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, [map]);
 
+  // 拉取 Google Sheet
   useEffect(() => {
     (async () => {
       try {
@@ -170,26 +176,24 @@ export default function App() {
     })();
   }, []);
 
+  // 过滤数据
   const list = useMemo(() => {
     return rows.filter(
       (r) => (!city || r.city === city) && (!status || r.status === status)
     );
   }, [rows, city, status]);
 
-  // 切歌：带淡入淡出
+  // 切歌（带淡入淡出）
   const playTrack = async (url, meta) => {
     const a = audioRef.current;
     if (!a || !url) return;
 
     try {
-      // 如果在播，先淡出
       if (!a.paused && !a.muted && a.volume > 0) {
-        await fadeTo(a, 0, 200);
+        await fadeTo(a, 0, 200); // 淡出
       }
-      // 切歌
       if (a.src !== url) a.src = url;
 
-      // 若静音，不做淡入，只更新状态
       if (a.muted) {
         await a.play().catch(() => {});
         setCurrentTrack((t) => ({
@@ -205,11 +209,10 @@ export default function App() {
         return;
       }
 
-      // 调小音量再起播，随后淡入
       if (a.volume > 0) lastNonZeroVol.current = a.volume;
       a.volume = 0;
       await a.play();
-      await fadeTo(a, lastNonZeroVol.current || 1, 200);
+      await fadeTo(a, lastNonZeroVol.current || 1, 200); // 淡入
 
       setCurrentTrack((t) => ({
         ...(t || {}),
@@ -235,6 +238,7 @@ export default function App() {
     }
   };
 
+  // 渲染标记
   useEffect(() => {
     if (!map) return;
 
@@ -292,13 +296,12 @@ export default function App() {
     [rows]
   );
 
-  // 控制：播放/暂停、静音、快进快退
+  // 控制：播放/暂停、静音、进度
   const togglePlay = async () => {
     const a = audioRef.current;
     if (!a) return;
     try {
       if (a.paused) {
-        // 从 0 淡入
         if (!a.muted) {
           if (a.volume > 0) lastNonZeroVol.current = a.volume;
           a.volume = 0;
@@ -309,7 +312,6 @@ export default function App() {
         }
         setCurrentTrack((t) => t ? { ...t, playing: true } : t);
       } else {
-        // 淡出后暂停
         if (!a.muted) {
           await fadeTo(a, 0, 200);
           a.pause();
@@ -348,6 +350,12 @@ export default function App() {
     if (!a) return;
     setCurrentTrack((t) => {
       if (!t || t.seeking) return t;
+      // 蓝色进度条填充（配合 CSS 的 background-size）
+      const el = document.querySelector(".seek");
+      if (el && t.dur) {
+        const p = Math.min(1, a.currentTime / t.dur);
+        el.style.backgroundSize = `${p * 100}% 100%`;
+      }
       return { ...t, cur: a.currentTime };
     });
   };
@@ -366,7 +374,7 @@ export default function App() {
   return (
     <div className="page">
       <header className="topbar">
-          <div className="title-wrap">
+        <div className="title-wrap">
           <h1 className="title-main">雨在想你</h1>
           <div className="title-sub">我也在想你❤</div>
         </div>
@@ -388,7 +396,7 @@ export default function App() {
       <div id="map" className="map-full" />
 
       {/* 悬浮播放器（同一行展示，窄屏自动换行） */}
-      <div className="floating-player row">
+      <div className="floating-player">
         <button onClick={togglePlay} className="player-btn">
           {currentTrack?.playing ? "⏸︎ 暂停" : "▶︎ 播放"}
         </button>
@@ -396,11 +404,11 @@ export default function App() {
           {currentTrack?.muted ? "🔇 静音" : "🔊 声音"}
         </button>
 
-        <div className="player-info one-line">
+        <div className="one-line">
           {currentTrack ? `正在播放：${currentTrack.name} · ${currentTrack.city}` : "未选择音乐"}
         </div>
 
-        <div className="player-progress row">
+        <div className="player-progress">
           <span className="time">{fmt(currentTrack?.cur ?? 0)}</span>
           <input
             className="seek"
@@ -417,7 +425,6 @@ export default function App() {
           <span className="time">{fmt(currentTrack?.dur ?? 0)}</span>
         </div>
 
-        {/* 隐藏音频元素：监听元数据/进度 */}
         <audio
           ref={audioRef}
           loop
