@@ -464,6 +464,7 @@ export default function App() {
           <option value="">全部状态</option>
           <option value="visited">去过</option>
           <option value="want">想去</option>
+          <option value="others">其他</option>
         </select>
       </div>
     </header>
