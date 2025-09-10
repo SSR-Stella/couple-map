@@ -3,31 +3,26 @@
   --fg: #1c1d20;
   --muted: #5f6368;
   --border: rgba(0,0,0,0.08);
-  --surface: rgba(255,255,255,0.2);     /* 玻璃用的半透明 */
-  --surface-strong: #fff;
   --accent: #0a84ff;
   --accent-quiet: #e6f0ff;
   --radius: 14px;
   --radius-sm: 10px;
   --shadow: 0 6px 24px rgba(0,0,0,.12), 0 1px 0 rgba(0,0,0,.05);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   color: var(--fg);
-  /* 不要在这里设背景色，避免盖住背景图 */
 }
 
 * { box-sizing: border-box; }
 html, body, #root ,*{ 
-    font-family: inherit;
-    height: 100%; }
+  height: 100%;
+  margin: 0;}
 
 /* 背景图放在 body 上 */
 body {
-  margin: 0;
-  min-width: 320px;
   background: url("https://cdn.jsdelivr.net/gh/SSR-Stella/couple-map/image/50F6A931-D48C-4663-8A5E-8A5186C8AFB7.png")
     no-repeat center center fixed;
   background-size: cover;
@@ -35,11 +30,15 @@ body {
 
 /* ========= Topbar（玻璃） ========= */
 .topbar {
-  position: sticky; top: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 12px 18px;
-  background: rgba(255, 255, 255, 0.18);             /* 更透明一点 */
-  border-bottom: 1px solid rgba(255,255,255,0.25);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
@@ -48,11 +47,13 @@ body {
 .title-wrap { display: flex; flex-direction: column; }
 .title-main {
   margin: 0;
-  font-size: 20px; font-weight: 700;
+  font-size: 20px;
+  font-weight: 700;
   color: #fff;
 }
 .title-sub {
-  font-size: 14px; font-weight: 500;
+  font-size: 14px;
+  font-weight: 500;
   color: #fff;
   margin-top: 2px;
 }
@@ -90,29 +91,41 @@ body {
 /* ========= Map ========= */
 #map, .map-full {
   width: 100%;
-  min-height: 300px;
   height: calc(100vh - 72px);
-  border-top: 1px solid rgba(255,255,255,0.25);
   border-radius: 12px;
-  margin: 8px;                 /* 露出背景边缘 */
-  overflow: hidden;
-  background: transparent !important;  /* 自身背景透明 */
+  margin: 8px;
+  background: transparent !important;
 }
-
-/* 让瓦片半透明，才能看到背景图 */
+.leaflet-container {
+  background: transparent !important;
+}
 .leaflet-pane .leaflet-tile {
-  opacity: 0.9;                 /* 你可以调 0.85~0.95 */
+  opacity: 0.88;   /* 轻微透明 */
+}
+/* ========= Floating Player（保持你之前的） ========= */
+/* 播放器修正：一行布局 */
+.floating-player {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
-/* ========= Floating Player（保持你之前的） ========= */
-.floating-player {
-  position: fixed; right: 16px; bottom: 16px; z-index: 2000;
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.25);
-  border-radius: var(--radius); padding: 10px 12px;
-  box-shadow: var(--shadow); backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  max-width: 820px;
+/* 播放器内部按钮不要被撑长 */
+.floating-player button,
+.floating-player .player-btn {
+  flex-shrink: 0;
 }
 
 .player-btn {
