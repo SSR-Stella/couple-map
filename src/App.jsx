@@ -439,15 +439,21 @@ export default function App() {
   return (
     <div className="page">
     <header className="topbar">
-      <div className="title-wrap">
-        <h1 className="title-main">雨在想你</h1>
-        <div className="title-sub">我也在想你❤</div>
-        <div className="title-sub">
-          
-          今天是遇到你的第 {days} 天  今天也要开心哦😘
+      {/* 左侧：标题 */}
+      <div className="top-left">
+        <div className="title-wrap">
+          <h1 className="title-main">雨在想你</h1>
+          <div className="title-sub">我也在想你❤</div>
         </div>
       </div>
-      <div className="filters">
+
+      {/* 中间：居中显示天数 */}
+      <div className="top-center">
+        今天是遇到姐姐的第 <strong>{days}</strong> 天，今天也要开心哦 🥰
+      </div>
+
+      {/* 右侧：筛选 */}
+      <div className="top-right filters">
         <select value={city} onChange={(e) => setCity(e.target.value)}>
           <option value="">全部城市</option>
           {cities.map((c) => (
@@ -458,7 +464,6 @@ export default function App() {
           <option value="">全部状态</option>
           <option value="visited">去过</option>
           <option value="want">想去</option>
-          <option value="others">其他</option>
         </select>
       </div>
     </header>
