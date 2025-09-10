@@ -1,69 +1,180 @@
+/* ========= macOS-ish Design Tokens ========= */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --bg: #f5f6f7;
+  --fg: #1c1d20;
+  --muted: #5f6368;
+  --border: rgba(0,0,0,0.08);
+  --surface: rgba(255,255,255,0.72);
+  --surface-strong: #fff;
+  --accent: #0a84ff;          /* macOS 蓝 */
+  --accent-quiet: #e6f0ff;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 6px 24px rgba(0,0,0,.12), 0 1px 0 rgba(0,0,0,.05);
+
+  font-family: -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",
+               "Helvetica Neue",Helvetica,Arial,ui-sans-serif,system-ui,"PingFang SC",
+               "Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
   line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body { margin: 0; min-width: 320px; min-height: 100vh; }
-h1 { font-size: 1.5em; margin: 0; }
+/* 深色自动切换 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0f12;
+    --fg: #eaeaec;
+    --muted: #a1a1aa;
+    --border: rgba(255,255,255,0.08);
+    --surface: rgba(22,24,28,0.6);
+    --surface-strong: #191c20;
+    --accent: #0a84ff;
+    --accent-quiet: rgba(10,132,255,0.18);
+    --shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+}
 
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; min-width: 320px; }
+
+/* ========= Topbar ========= */
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 10px 16px;
-  background: rgba(255,255,255,0.92);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  backdrop-filter: saturate(140%) blur(6px);
+  gap: 12px; padding: 12px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: saturate(160%) blur(14px);
 }
-.filters { display: flex; gap: 8px; }
+
+.title {
+  margin: 0;
+  font-size: 18px; font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/* ========= Filters (mac 风格下拉) ========= */
+.filters { display: flex; gap: 10px; flex-wrap: wrap; }
+
 .filters select {
-  min-height: 36px; padding: 6px 10px; border-radius: 10px;
-  border: 1px solid #eaeaea; background: #fff;
+  appearance: none;
+  padding: 8px 36px 8px 12px;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,.9), rgba(255,255,255,.75)) padding-box,
+    linear-gradient(to bottom, rgba(255,255,255,.4), rgba(0,0,0,.04)) border-box;
+  color: var(--fg);
+  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset;
+  position: relative;
 }
 
-.map-full { height: calc(100vh - 72px); }
+.filters select:focus {
+  outline: 2px solid var(--accent-quiet);
+  border-color: rgba(10,132,255,.35);
+}
 
-/* 悬浮播放器：右下角，单行布局为主 */
+/* 自制下拉箭头 */
+.filters select {
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,.9), rgba(255,255,255,.75)),
+    linear-gradient(to bottom, rgba(255,255,255,.4), rgba(0,0,0,.04)),
+    conic-gradient(from 45deg at 50% 55%, var(--muted) 25%, transparent 0);
+  background-size:
+    100% 100%, 100% 100%,
+    10px 10px;
+  background-repeat: no-repeat;
+  background-position:
+    0 0, 0 0,
+    right 12px center;
+}
+
+/* ========= Map ========= */
+.map-full {
+  height: calc(100vh - 64px);
+  border-top: 1px solid var(--border);
+}
+
+/* ========= Floating Player (glass) ========= */
 .floating-player {
-  position: fixed;
-  right: 16px; bottom: 16px; z-index: 2000;
-  background: #fff; border: 1px solid #eee; border-radius: 12px;
-  padding: 10px 12px; box-shadow: 0 4px 12px rgba(0,0,0,.1);
-  max-width: 760px;
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; /* 小屏自动换行 */
+  position: fixed; right: 16px; bottom: 16px; z-index: 2000;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  box-shadow: var(--shadow);
+  max-width: 820px;
+  backdrop-filter: saturate(140%) blur(18px);
 }
 
-.row { display: flex; align-items: center; gap: 8px; }
-
-.player-btn {
-  padding: 6px 10px;
-  border-radius: 999px; border: 1px solid #eee;
-  background: #fff; cursor: pointer; font-size: 12px;
-}
-
+/* 单行优先显示，窄屏自动换行 */
 .one-line {
-  font-size: 12px; color: #333;
+  font-size: 12px; color: var(--muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 260px;
 }
 
+/* 按钮（mac 圆角 + 浅浮雕） */
+.player-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,.95), rgba(255,255,255,.75));
+  color: var(--fg);
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 0 0 1px rgba(255,255,255,.4);
+  transition: transform .06s ease, box-shadow .2s ease, filter .2s ease;
+}
+.player-btn:hover { filter: brightness(1.03); }
+.player-btn:active { transform: translateY(1px); }
+
+/* 进度条 + 时间 */
 .player-progress { display: flex; align-items: center; gap: 8px; }
-.player-progress .time { font-size: 12px; color: #666; width: 42px; text-align: center; }
+.player-progress .time {
+  width: 44px; text-align: center; font-size: 12px; color: var(--muted);
+}
 
-/* range 样式 */
-.seek { -webkit-appearance: none; appearance: none; width: 220px; height: 4px; background: #e5e7eb; border-radius: 999px; outline: none; }
-.seek::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #4f46e5; cursor: pointer; border: 0; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
-.seek::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #4f46e5; border: 0; cursor: pointer; }
+/* ======== mac 风进度条（灰底 + 蓝色已播放段） ======== */
+.seek {
+  -webkit-appearance: none; appearance: none;
+  width: 260px; height: 4px; border-radius: 999px; outline: none;
+  /* 两层背景：上层蓝色表示已播放，使用 background-size 动态拉伸；下层灰色底 */
+  background:
+    linear-gradient(to right, var(--accent), var(--accent)) 0/0% 100% no-repeat,
+    rgba(0,0,0,.08);
+  transition: background-size .12s ease;
+}
+.seek:focus { box-shadow: 0 0 0 4px var(--accent-quiet); }
 
+/* 滑块（thumb） */
+.seek::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18), 0 0 0 4px var(--accent-quiet);
+  cursor: pointer;
+}
+.seek::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18), 0 0 0 4px var(--accent-quiet);
+  cursor: pointer;
+}
+
+/* ========= Responsive ========= */
 @media (max-width: 640px) {
   .floating-player {
     left: 50%; transform: translateX(-50%);
-    right: auto; bottom: 12px; max-width: 92%;
+    right: auto; bottom: 12px; max-width: 94%;
     gap: 8px; padding: 8px 10px;
   }
   .one-line { max-width: 100%; }
