@@ -61,6 +61,13 @@ function formatDate(val) {
   return String(val);
 }
 
+function fmt(t) {
+  if (!Number.isFinite(t) || t < 0) return "00:00";
+  const m = Math.floor(t / 60);
+  const s = Math.floor(t % 60);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 export default function App() {
   // —— 入口暗号门 ——
   const [unlocked, setUnlocked] = useState(
@@ -87,7 +94,7 @@ export default function App() {
 
   // 音频控制
   const audioRef = useRef(null);
-  const [currentTrack, setCurrentTrack] = useState(null); // { name, city, url, playing }
+  const [currentTrack, setCurrentTrack] = useState(null); // { name, city, url, playing, muted, cur, dur, seeking }
 
   useEffect(() => {
     try {
@@ -127,7 +134,7 @@ export default function App() {
           lon: toNum(r.lon),
           image_url: r.image_url,
           video_url: r.video_url,
-          music_url: r.music_url, // 🆕 每个地点的音乐直链（mp3）
+          music_url: r.music_url,
           date: formatDate(r.date),
           notes: r.notes,
         }));
@@ -147,7 +154,6 @@ export default function App() {
   useEffect(() => {
     if (!map) return;
 
-    // 清空旧标记
     markers.forEach((mk) => map.removeLayer(mk));
 
     const ms = [];
@@ -156,12 +162,10 @@ export default function App() {
     list.forEach((p) => {
       if (p.lat == null || p.lon == null) return;
 
-      // 媒体：优先视频，其次图片
       const media = p.video_url
         ? `<video src="${p.video_url}" controls style="width:100%;height:140px;border-radius:8px;background:#000;object-fit:cover"></video>`
         : `<img src="${p.image_url || ""}" style="width:100%;height:140px;object-fit:cover;border-radius:8px;background:#f2f2f2"/>`;
 
-      // 🆕 查看大图链接（只有有 image_url 时显示）
       const viewLink = p.image_url
         ? `<div style="margin-top:6px"><a href="${p.image_url}" target="_blank" rel="noopener noreferrer">查看大图</a></div>`
         : "";
@@ -182,19 +186,37 @@ export default function App() {
 
       const mk = L.marker([p.lat, p.lon]).addTo(map).bindPopup(popupHtml);
 
-      // 🆕 点击标记时，播放该地点音乐
       mk.on("click", async () => {
         if (!p.music_url || !audioRef.current) return;
         try {
-          if (audioRef.current.src !== p.music_url) {
-            audioRef.current.src = p.music_url;
+          const a = audioRef.current;
+          if (a.src !== p.music_url) {
+            a.src = p.music_url;
           }
-          await audioRef.current.play();
-          setCurrentTrack({ name: p.name || "", city: p.city || "", url: p.music_url, playing: true });
+          await a.play();
+          setCurrentTrack({
+            name: p.name || "",
+            city: p.city || "",
+            url: p.music_url,
+            playing: true,
+            muted: a.muted || false,
+            cur: a.currentTime || 0,
+            dur: Number.isFinite(a.duration) ? a.duration : 0,
+            seeking: false,
+          });
         } catch (err) {
-          console.warn("Autoplay blocked or play failed:", err);
-          // 某些设备需要用户再点一次播放按钮
-          setCurrentTrack({ name: p.name || "", city: p.city || "", url: p.music_url, playing: false });
+          console.warn("Autoplay blocked:", err);
+          const a = audioRef.current;
+          setCurrentTrack({
+            name: p.name || "",
+            city: p.city || "",
+            url: p.music_url,
+            playing: false,
+            muted: a?.muted || false,
+            cur: a?.currentTime || 0,
+            dur: Number.isFinite(a?.duration) ? a.duration : 0,
+            seeking: false,
+          });
         }
       });
 
@@ -216,15 +238,16 @@ export default function App() {
     [rows]
   );
 
-  // 播放/暂停按钮
+  // 控制：播放/暂停、静音、快进快退
   const togglePlay = async () => {
-    if (!audioRef.current) return;
+    const a = audioRef.current;
+    if (!a) return;
     try {
-      if (audioRef.current.paused) {
-        await audioRef.current.play();
+      if (a.paused) {
+        await a.play();
         setCurrentTrack((t) => t ? { ...t, playing: true } : t);
       } else {
-        audioRef.current.pause();
+        a.pause();
         setCurrentTrack((t) => t ? { ...t, playing: false } : t);
       }
     } catch (e) {
@@ -232,27 +255,43 @@ export default function App() {
     }
   };
 
+  const toggleMute = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.muted = !a.muted;
+    setCurrentTrack((t) => t ? { ...t, muted: a.muted } : t);
+  };
+
+  const onLoadedMetadata = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    setCurrentTrack((t) => t ? { ...t, dur: Number.isFinite(a.duration) ? a.duration : 0 } : t);
+  };
+
+  const onTimeUpdate = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    setCurrentTrack((t) => {
+      if (!t || t.seeking) return t; // 拖动时不要被 timeupdate 抢夺
+      return { ...t, cur: a.currentTime };
+    });
+  };
+
+  const onSeek = (e) => {
+    const a = audioRef.current;
+    if (!a) return;
+    const v = Number(e.target.value);
+    a.currentTime = v;
+    setCurrentTrack((t) => t ? { ...t, cur: v, seeking: false } : t);
+  };
+
+  const onSeekStart = () => setCurrentTrack((t) => t ? { ...t, seeking: true } : t);
+  const onSeekEnd = (e) => onSeek(e);
+
   return (
     <div className="page">
-      {/* 🆕 顶部右侧的迷你播放器 */}
-      <div style={{
-        position: "absolute", right: 10, top: 10, zIndex: 1000,
-        background: "rgba(255,255,255,.92)", border: "1px solid rgba(0,0,0,.05)",
-        borderRadius: 12, padding: "8px 10px", boxShadow: "0 2px 10px rgba(0,0,0,.05)",
-        display: "flex", gap: 8, alignItems: "center"
-      }}>
-        <button onClick={togglePlay} style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid #eee", background: "#fff", cursor: "pointer" }}>
-          {currentTrack?.playing ? "⏸︎ 暂停" : "▶︎ 播放"}
-        </button>
-        <div style={{ fontSize: 12, color: "#333", maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {currentTrack ? `正在播放：${currentTrack.name} · ${currentTrack.city}` : "未选择音乐"}
-        </div>
-        {/* 隐藏的音频元素 */}
-        <audio ref={audioRef} loop />
-      </div>
-
       <header className="topbar">
-        <h1 className="title">雨也在想你♥</h1>
+        <h1 className="title">雨也在想你</h1>
         <div className="filters">
           <select value={city} onChange={(e) => setCity(e.target.value)}>
             <option value="">全部城市</option>
@@ -264,12 +303,53 @@ export default function App() {
             <option value="">全部状态</option>
             <option value="visited">去过</option>
             <option value="want">想去</option>
-            <option value="others">其他</option>
           </select>
         </div>
       </header>
 
       <div id="map" className="map-full" />
+
+      {/* 悬浮播放器 */}
+      <div className="floating-player">
+        <button onClick={togglePlay} className="player-btn">
+          {currentTrack?.playing ? "⏸︎ 暂停" : "▶︎ 播放"}
+        </button>
+        <button onClick={toggleMute} className="player-btn">
+          {currentTrack?.muted ? "🔇 静音" : "🔊 声音"}
+        </button>
+
+        <div className="player-center">
+          <div className="player-info">
+            {currentTrack ? `正在播放：${currentTrack.name} · ${currentTrack.city}` : "未选择音乐"}
+          </div>
+
+          {/* 进度条 + 时间 */}
+          <div className="player-progress">
+            <span className="time">{fmt(currentTrack?.cur ?? 0)}</span>
+            <input
+              className="seek"
+              type="range"
+              min={0}
+              max={Math.max(1, Math.floor(currentTrack?.dur ?? 0))}
+              value={Math.floor(currentTrack?.cur ?? 0)}
+              onMouseDown={onSeekStart}
+              onTouchStart={onSeekStart}
+              onChange={onSeek}
+              onMouseUp={onSeekEnd}
+              onTouchEnd={onSeekEnd}
+            />
+            <span className="time">{fmt(currentTrack?.dur ?? 0)}</span>
+          </div>
+        </div>
+
+        {/* 隐藏音频元素：监听元数据/进度 */}
+        <audio
+          ref={audioRef}
+          loop
+          onLoadedMetadata={onLoadedMetadata}
+          onTimeUpdate={onTimeUpdate}
+        />
+      </div>
     </div>
   );
 }
