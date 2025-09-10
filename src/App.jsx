@@ -141,6 +141,7 @@ export default function App() {
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "© OpenStreetMap",
+      opacity: 0.9,       // 让地图微透明
     }).addTo(m);
     m.setView([20, 0], 2);
     setMap(m);

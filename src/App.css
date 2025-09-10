@@ -17,9 +17,9 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root ,*{ 
-  height: 100%;
-  margin: 0;}
+
+/* 只给这三个 100% 高度，别用 * */
+html, body, #root { height: 100%; margin: 0; }
 
 /* 背景图放在 body 上 */
 body {
@@ -27,6 +27,9 @@ body {
     no-repeat center center fixed;
   background-size: cover;
 }
+
+/* 页面容器：正常文档流，别 100% 高 */
+.page { min-height: 100%; }
 
 /* ========= Topbar（玻璃） ========= */
 .topbar {
@@ -36,27 +39,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 12px 18px;
+
   background: rgba(255, 255, 255, 0.18);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  border-bottom: 1px solid rgba(255,255,255,0.25);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* 标题：白色 */
 .title-wrap { display: flex; flex-direction: column; }
-.title-main {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-}
-.title-sub {
-  font-size: 14px;
-  font-weight: 500;
-  color: #fff;
-  margin-top: 2px;
-}
+.title-main { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
+.title-sub  { font-size: 14px; font-weight: 500; color: #fff; margin-top: 2px; }
 
 /* ========= Filters（黑字） ========= */
 .filters { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -69,9 +63,9 @@ body {
   background:
     linear-gradient(to bottom, rgba(255,255,255,.9), rgba(255,255,255,.75)) padding-box,
     linear-gradient(to bottom, rgba(255,255,255,.4), rgba(0,0,0,.04)) border-box;
-  font-family: inherit !important;
-  font-weight: 700;     /* 黑体 */
-  color: #000;          /* 黑字 */
+  font-family: inherit;
+  font-weight: 700;
+  color: #000;
   box-shadow: 0 1px 0 rgba(255,255,255,.5) inset;
 }
 .filters select:focus {
@@ -94,24 +88,25 @@ body {
   height: calc(100vh - 72px);
   border-radius: 12px;
   margin: 8px;
-  background: transparent !important;
+  background: transparent !important;   /* 容器透明 */
+  overflow: hidden;
 }
-.leaflet-container {
-  background: transparent !important;
-}
-.leaflet-pane .leaflet-tile {
-  opacity: 0.88;   /* 轻微透明 */
-}
-/* ========= Floating Player（保持你之前的） ========= */
-/* 播放器修正：一行布局 */
+.leaflet-container { background: transparent !important; }
+/* 让瓦片微透明，才能透出背景 */
+.leaflet-pane .leaflet-tile { opacity: 0.9; }
+
+/* ========= Floating Player ========= */
 .floating-player {
   position: fixed;
   right: 16px;
   bottom: 16px;
   z-index: 2000;
+
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: nowrap;           /* 一行布局 */
+  max-width: 820px;
 
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -122,17 +117,17 @@ body {
   -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
-/* 播放器内部按钮不要被撑长 */
+/* 按钮不要被拉伸变长/变高 */
+.floating-player * { height: auto; }
 .floating-player button,
-.floating-player .player-btn {
-  flex-shrink: 0;
-}
+.floating-player .player-btn { flex-shrink: 0; }
 
 .player-btn {
   padding: 6px 12px;
-  border-radius: 999px; border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.35);
   background: linear-gradient(to bottom, rgba(255,255,255,.95), rgba(255,255,255,.75));
-  color: #333;   /* 深灰文字 */
+  color: #333;
   cursor: pointer; font-size: 12px; font-weight: 600;
   box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 0 0 1px rgba(255,255,255,.4);
   transition: transform .06s ease, filter .2s ease;
@@ -149,10 +144,12 @@ body {
 .player-progress { display: flex; align-items: center; gap: 8px; }
 .player-progress .time { width: 44px; text-align: center; font-size: 12px; color: #eaeaea; }
 
-/* 进度条 */
+/* 进度条：强制横向、小条 */
 .seek {
   -webkit-appearance: none; appearance: none;
-  width: 260px; height: 4px; border-radius: 999px; outline: none;
+  writing-mode: horizontal-tb !important;
+  width: 260px; height: 4px !important;
+  border-radius: 999px; outline: none;
   background:
     linear-gradient(to right, var(--accent), var(--accent)) 0/0% 100% no-repeat,
     rgba(255,255,255,.35);
@@ -162,14 +159,14 @@ body {
 .seek::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
   width: 16px; height: 16px; border-radius: 50%;
-  background: var(--surface-strong);
+  background: #fff;
   border: 1px solid rgba(0,0,0,0.1);
   box-shadow: 0 2px 8px rgba(0,0,0,.18), 0 0 0 4px var(--accent-quiet);
   cursor: pointer;
 }
 .seek::-moz-range-thumb {
   width: 16px; height: 16px; border-radius: 50%;
-  background: var(--surface-strong);
+  background: #fff;
   border: 1px solid rgba(0,0,0,0.1);
   box-shadow: 0 2px 8px rgba(0,0,0,.18), 0 0 0 4px var(--accent-quiet);
   cursor: pointer;
@@ -182,6 +179,7 @@ body {
     left: 50%; transform: translateX(-50%);
     right: auto; bottom: 12px; max-width: 94%;
     gap: 8px; padding: 8px 10px;
+    flex-wrap: wrap;   /* 不够一行时再换行 */
   }
   .one-line { max-width: 100%; }
   .seek { width: 150px; }
