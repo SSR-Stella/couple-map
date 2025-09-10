@@ -26,6 +26,12 @@ function parseGViz(text) {
   );
   return rows;
 }
+function daysSince(dateString) {
+  const start = new Date(dateString);
+  const now = new Date();
+  const diff = now - start;
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
 function toNum(v) {
   if (v == null) return null;
   const s = String(v).trim().replace(/，/g, ".").replace(/[^\d.\-]/g, "");
@@ -404,7 +410,7 @@ export default function App() {
     if (!a) return;
     setCurrentTrack((t) => t ? { ...t, dur: Number.isFinite(a.duration) ? a.duration : 0 } : t);
   };
-
+  const [days, setDays] = useState(daysSince("2018-04-01"));
   const onTimeUpdate = () => {
     const a = audioRef.current;
     if (!a) return;
@@ -432,25 +438,29 @@ export default function App() {
 
   return (
     <div className="page">
-      <header className="topbar">
-        <div className="title-wrap">
-          <h1 className="title-main">雨在想你</h1>
-          <div className="title-sub">我也在想你❤</div>
+    <header className="topbar">
+      <div className="title-wrap">
+        <h1 className="title-main">雨在想你</h1>
+        <div className="title-sub">我也在想你❤</div>
+        <div className="title-sub">
+          今天是遇到你的第 {days} 天  今天也要开心哦😘
         </div>
-        <div className="filters">
-          <select value={city} onChange={(e) => setCity(e.target.value)}>
-            <option value="">全部城市</option>
-            {cities.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">全部状态</option>
-            <option value="visited">去过</option>
-            <option value="want">想去</option>
-          </select>
-        </div>
-      </header>
+      </div>
+      <div className="filters">
+        <select value={city} onChange={(e) => setCity(e.target.value)}>
+          <option value="">全部城市</option>
+          {cities.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="">全部状态</option>
+          <option value="visited">去过</option>
+          <option value="want">想去</option>
+          <option value="others">其他</option>
+        </select>
+      </div>
+    </header>
 
       <div id="map" className="map-full" />
 
