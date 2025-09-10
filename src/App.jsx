@@ -366,7 +366,10 @@ export default function App() {
   return (
     <div className="page">
       <header className="topbar">
-        <h1 className="title">雨也在想你</h1>
+          <div className="title-wrap">
+          <h1 className="title-main">雨在想你</h1>
+          <div className="title-sub">我也在想你❤</div>
+        </div>
         <div className="filters">
           <select value={city} onChange={(e) => setCity(e.target.value)}>
             <option value="">全部城市</option>
