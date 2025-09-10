@@ -9,6 +9,9 @@ const SHEET_GID = "0";
 const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=select%20*&gid=${SHEET_GID}`;
 const PASSCODE = "0520";
 
+// ✅ 背景 BGM 直链（替换成你的 mp3 直链）
+const BGM_URL = "https://cdn.jsdelivr.net/gh/USER/REPO/music/bgm.mp3";
+
 // 解析 GViz JSON（优先 cell.f）
 function parseGViz(text) {
   const start = text.indexOf("{");
@@ -23,15 +26,12 @@ function parseGViz(text) {
   );
   return rows;
 }
-
 function toNum(v) {
   if (v == null) return null;
   const s = String(v).trim().replace(/，/g, ".").replace(/[^\d.\-]/g, "");
   const n = parseFloat(s);
   return Number.isFinite(n) ? n : null;
 }
-
-// 日期标准化
 function formatDate(val) {
   if (!val) return "";
   if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(val)) {
@@ -60,7 +60,6 @@ function formatDate(val) {
   }
   return String(val);
 }
-
 function fmt(t) {
   if (!Number.isFinite(t) || t < 0) return "00:00";
   const m = Math.floor(t / 60);
@@ -113,12 +112,16 @@ export default function App() {
   const [city, setCity] = useState("");
   const [status, setStatus] = useState("");
 
-  // 音频控制
+  // 主播放器
   const audioRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null); // { name, city, url, playing, muted, cur, dur, seeking }
   const lastNonZeroVol = useRef(1);
 
-  // 修复 Leaflet 默认 marker 图标
+  // 背景 BGM
+  const bgmRef = useRef(null);
+  const bgmReady = useRef(false);
+
+  // 修复默认 marker 图标
   useEffect(() => {
     try {
       // eslint-disable-next-line no-underscore-dangle
@@ -131,7 +134,7 @@ export default function App() {
     } catch {}
   }, []);
 
-  // 初始化世界地图 + 尺寸刷新
+  // 初始化地图 + 尺寸刷新
   useEffect(() => {
     if (map) return;
     const m = L.map("map", { worldCopyJump: true });
@@ -141,8 +144,6 @@ export default function App() {
     }).addTo(m);
     m.setView([20, 0], 2);
     setMap(m);
-
-    // 等一帧再刷新尺寸，避免容器高度还没算好
     setTimeout(() => m.invalidateSize(), 0);
     const onResize = () => m.invalidateSize();
     window.addEventListener("resize", onResize);
@@ -183,10 +184,63 @@ export default function App() {
     );
   }, [rows, city, status]);
 
-  // 切歌（带淡入淡出）
+  // 背景 BGM 控制
+  const playBGM = async () => {
+    const b = bgmRef.current;
+    if (!b || !BGM_URL) return;
+    try {
+      if (b.src !== BGM_URL) b.src = BGM_URL;
+      b.volume = 0.4; // 默认稍微小一点
+      await b.play();
+      bgmReady.current = true;
+    } catch (e) {
+      // 移动端可能被策略拦截，等用户第一次交互后才会放
+      bgmReady.current = false;
+      // console.warn("BGM autoplay blocked:", e);
+    }
+  };
+  const fadePauseBGM = async () => {
+    const b = bgmRef.current;
+    if (!b) return;
+    try {
+      await fadeTo(b, 0, 200);
+      b.pause();
+      b.volume = 0.4;
+    } catch {}
+  };
+  const fadeResumeBGM = async () => {
+    const b = bgmRef.current;
+    if (!b || !BGM_URL) return;
+    try {
+      if (b.paused) await b.play();
+      await fadeTo(b, 0.4, 200);
+    } catch {}
+  };
+
+  // 页面加载尝试播放 BGM（被阻止也没关系）
+  useEffect(() => {
+    playBGM();
+    // 第一次用户点击页面时再尝试一次
+    const once = () => {
+      if (!bgmReady.current) playBGM();
+      window.removeEventListener("click", once);
+      window.removeEventListener("touchstart", once);
+    };
+    window.addEventListener("click", once, { passive: true });
+    window.addEventListener("touchstart", once, { passive: true });
+    return () => {
+      window.removeEventListener("click", once);
+      window.removeEventListener("touchstart", once);
+    };
+  }, []);
+
+  // 切歌（带淡入淡出）+ 暂停 BGM
   const playTrack = async (url, meta) => {
     const a = audioRef.current;
     if (!a || !url) return;
+
+    // 先淡出并暂停 BGM
+    await fadePauseBGM();
 
     try {
       if (!a.paused && !a.muted && a.volume > 0) {
@@ -302,6 +356,8 @@ export default function App() {
     if (!a) return;
     try {
       if (a.paused) {
+        // 播主曲目 → 要暂停 BGM
+        await fadePauseBGM();
         if (!a.muted) {
           if (a.volume > 0) lastNonZeroVol.current = a.volume;
           a.volume = 0;
@@ -312,6 +368,7 @@ export default function App() {
         }
         setCurrentTrack((t) => t ? { ...t, playing: true } : t);
       } else {
+        // 暂停主曲目 → 恢复 BGM
         if (!a.muted) {
           await fadeTo(a, 0, 200);
           a.pause();
@@ -320,6 +377,8 @@ export default function App() {
           a.pause();
         }
         setCurrentTrack((t) => t ? { ...t, playing: false } : t);
+        // 让 BGM 回来
+        await fadeResumeBGM();
       }
     } catch (e) {
       console.warn("toggle play failed:", e);
@@ -350,7 +409,7 @@ export default function App() {
     if (!a) return;
     setCurrentTrack((t) => {
       if (!t || t.seeking) return t;
-      // 蓝色进度条填充（配合 CSS 的 background-size）
+      // 蓝色进度条填充
       const el = document.querySelector(".seek");
       if (el && t.dur) {
         const p = Math.min(1, a.currentTime / t.dur);
@@ -367,7 +426,6 @@ export default function App() {
     a.currentTime = v;
     setCurrentTrack((t) => t ? { ...t, cur: v, seeking: false } : t);
   };
-
   const onSeekStart = () => setCurrentTrack((t) => t ? { ...t, seeking: true } : t);
   const onSeekEnd = (e) => onSeek(e);
 
@@ -425,12 +483,16 @@ export default function App() {
           <span className="time">{fmt(currentTrack?.dur ?? 0)}</span>
         </div>
 
+        {/* 主音频（地点音乐） */}
         <audio
           ref={audioRef}
           loop
           onLoadedMetadata={onLoadedMetadata}
           onTimeUpdate={onTimeUpdate}
         />
+
+        {/* 背景 BGM（自动播放、循环，必要时会被暂停） */}
+        <audio ref={bgmRef} src={BGM_URL} loop style={{ display: "none" }} />
       </div>
     </div>
   );

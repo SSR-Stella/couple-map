@@ -1,10 +1,10 @@
 /* ========= macOS-ish Design Tokens ========= */
 :root {
   --bg: #f5f6f7;
-  --fg: #1c1d20;        /* 默认黑字 */
+  --fg: #1c1d20;
   --muted: #5f6368;
   --border: rgba(0,0,0,0.08);
-  --surface: rgba(255,255,255,0.6);     /* 顶栏/播放器半透明 */
+  --surface: rgba(255,255,255,0.3);     /* 顶栏/播放器半透明 */
   --surface-strong: #fff;
   --accent: #0a84ff;
   --accent-quiet: #e6f0ff;
@@ -22,14 +22,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 深色自动切换（仅深色时才用浅色字） */
+/* 深色模式 */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0e0f12;
     --fg: #eaeaec;
     --muted: #a1a1aa;
     --border: rgba(255,255,255,0.08);
-    --surface: rgba(22,24,28,0.5);
+    --surface: rgba(22,24,28,0.4);
     --surface-strong: #191c20;
     --shadow: 0 10px 30px rgba(0,0,0,.45);
   }
@@ -44,9 +44,9 @@ body { margin: 0; min-width: 320px; }
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; padding: 12px 18px;
-  background: var(--surface);        /* 半透明 */
+  background: var(--surface);        /* 半透明玻璃效果 */
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(180%);
 }
 
 .title-wrap { display: flex; flex-direction: column; }
@@ -91,8 +91,8 @@ body { margin: 0; min-width: 320px; }
 /* ========= Map ========= */
 #map, .map-full {
   width: 100%;
-  min-height: 300px;                 /* 防止算错时为 0 */
-  height: calc(100vh - 72px);        /* 顶栏大约 72px，可按实际调整 */
+  min-height: 300px;
+  height: calc(100vh - 72px);
   border-top: 1px solid var(--border);
 }
 @media (max-width: 640px) {
@@ -113,7 +113,9 @@ body { margin: 0; min-width: 320px; }
   padding: 6px 12px;
   border-radius: 999px; border: 1px solid var(--border);
   background: linear-gradient(to bottom, rgba(255,255,255,.95), rgba(255,255,255,.75));
-  color: var(--fg); cursor: pointer; font-size: 12px; font-weight: 600;
+  color: #333;   /* 深灰文字 */
+  cursor: pointer;
+  font-size: 12px; font-weight: 600;
   box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 0 0 1px rgba(255,255,255,.4);
   transition: transform .06s ease, filter .2s ease;
 }
@@ -129,7 +131,7 @@ body { margin: 0; min-width: 320px; }
 .player-progress { display: flex; align-items: center; gap: 8px; }
 .player-progress .time { width: 44px; text-align: center; font-size: 12px; color: var(--muted); }
 
-/* 进度条（灰底 + 蓝色已播放）*/
+/* 进度条 */
 .seek {
   -webkit-appearance: none; appearance: none;
   width: 260px; height: 4px; border-radius: 999px; outline: none;
