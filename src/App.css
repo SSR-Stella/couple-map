@@ -26,6 +26,7 @@ body {
   background: url("https://cdn.jsdelivr.net/gh/SSR-Stella/couple-map/image/50F6A931-D48C-4663-8A5E-8A5186C8AFB7.png")
     no-repeat center center fixed;
   background-size: cover;
+  overflow:hidden;
 }
 
 /* 页面容器：正常文档流，别 100% 高 */

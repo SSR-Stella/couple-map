@@ -1,11 +1,22 @@
-/* 全局重置到最简单，避免影响全屏地图布局 */
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #fafafa;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+/* 全局只留最小样式：系统字体 + 背景图 + 高度 */
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  color: #1c1d20;
 }
 
-/* 链接默认样式中性 */
-a { color: inherit; text-decoration: none; }
+/* 只给这三个 100% 高度；不要给 * 设 height:100% */
+html, body, #root { height: 100%; margin: 0; }
+
+/* 背景图放 body，固定覆盖全屏 */
+body {
+  background: url("https://cdn.jsdelivr.net/gh/SSR-Stella/couple-map/image/50F6A931-D48C-4663-8A5E-8A5186C8AFB7.png")
+    no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden;   /* 取消页面的横/竖滚动条 */
+}
+
+/* 避免某些库给 root 背景色，强制透明 */
+#root { background: transparent !important; }
