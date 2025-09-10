@@ -10,7 +10,7 @@ const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx
 const PASSCODE = "0520";
 
 // ✅ 背景 BGM 直链（替换成你的 mp3 直链）
-const BGM_URL = "https://cdn.jsdelivr.net/gh/USER/REPO/music/bgm.mp3";
+const BGM_URL = "https://raw.githubusercontent.com/SSR-Stella/couple-map/main/music/%E9%9B%A8%E4%B9%9F%E5%9C%A8%E6%83%B3%E4%BD%A0-%E5%AD%9F%E6%85%A7%E5%9C%86%232sa0kL.mp3";
 
 // 解析 GViz JSON（优先 cell.f）
 function parseGViz(text) {
