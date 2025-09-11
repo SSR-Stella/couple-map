@@ -292,9 +292,8 @@ body {
   color: #f5f5f7; /* 高级白 */
   /* 多层 text-shadow 做出柔和光晕效果 */
   text-shadow: 
-    0 0 2px rgba(255,255,255,0.7),
-    0 0 6px rgba(255,255,255,0.6),
-    0 0 12px rgba(255,255,255,0.4);
+    0 1px 1px rgba(0,0,0,.18),    /* 轻微暗投影，增强可读性 */
+    0 0 6px rgba(255,255,255,.15);/* 很淡的白色光晕 */
 
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -320,8 +319,8 @@ body {
 
   #map, .map-full { height: 100%; } /* 第二行填充不变 */
 
-  .note-toggle{ left: 12px; top: 84px; }
-  .sticky-note{ left: 62px; top: 78px; width: clamp(160px, 60vw, 240px); }
+  .note-toggle{ left: 12px; top: 120px; }
+  .sticky-note{ left: 62px; top: 108px; width: clamp(160px, 60vw, 240px); }
   .sticky-note .note-text{ font-size: 13px; }
 
   .floating-player {
