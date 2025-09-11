@@ -3,13 +3,16 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "./App.css";
 
-// === 配置 ===
+/* ===================== 配置 ===================== */
 const SHEET_ID = "1uIprOcVA6H49PGNNo_od5qkpvSwZdvGSUmtFCGQj1WU";
 const SHEET_GID = "0";
 const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=select%20*&gid=${SHEET_GID}`;
 const PASSCODE = "0520";
-const [showNote, setShowNote] = useState(false);
 
+// 背景 BGM 直链
+const BGM_URL = "https://raw.githubusercontent.com/SSR-Stella/couple-map/main/music/%E9%9B%A8%E4%B9%9F%E5%9C%A8%E6%83%B3%E4%BD%A0-%E5%AD%9F%E6%85%A7%E5%9C%86%232sa0kL.mp3";
+
+/* ===================== 每日便签 ===================== */
 const DAILY_NOTES = [
   "自分らしくのんびりに頑張ろうね",
   "穿越逆境 抵达繁星",
@@ -113,8 +116,10 @@ const DAILY_NOTES = [
   "这一生最美的遇见 是你"
 ];
 
-// ✅ 背景 BGM 直链（替换成你的 mp3 直链）
-const BGM_URL = "https://raw.githubusercontent.com/SSR-Stella/couple-map/main/music/%E9%9B%A8%E4%B9%9F%E5%9C%A8%E6%83%B3%E4%BD%A0-%E5%AD%9F%E6%85%A7%E5%9C%86%232sa0kL.mp3";
+/* ===================== 工具函数 ===================== */
+function pickRandomNote(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
 
 // 解析 GViz JSON（优先 cell.f）
 function parseGViz(text) {
@@ -124,24 +129,25 @@ function parseGViz(text) {
   const json = JSON.parse(text.slice(start, end + 1));
   const cols = json.table.cols.map((c) => c.label || c.id);
   const rows = json.table.rows.map((r) =>
-    Object.fromEntries(
-      r.c.map((cell, i) => [cols[i], cell ? (cell.f ?? cell.v ?? "") : ""])
-    )
+    Object.fromEntries(r.c.map((cell, i) => [cols[i], cell ? (cell.f ?? cell.v ?? "") : ""]))
   );
   return rows;
 }
+
 function daysSince(dateString) {
   const start = new Date(dateString);
   const now = new Date();
   const diff = now - start;
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
+
 function toNum(v) {
   if (v == null) return null;
   const s = String(v).trim().replace(/，/g, ".").replace(/[^\d.\-]/g, "");
   const n = parseFloat(s);
   return Number.isFinite(n) ? n : null;
 }
+
 function formatDate(val) {
   if (!val) return "";
   if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(val)) {
@@ -170,6 +176,7 @@ function formatDate(val) {
   }
   return String(val);
 }
+
 function fmt(t) {
   if (!Number.isFinite(t) || t < 0) return "00:00";
   const m = Math.floor(t / 60);
@@ -177,13 +184,7 @@ function fmt(t) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-function pickRandomNote(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-const [note, setNote] = useState(() => pickRandomNote(DAILY_NOTES));
-
-// 线性音量渐变（淡入淡出 200ms）
+// 线性音量渐变（淡入淡出）
 async function fadeTo(audio, target = 1, duration = 200) {
   if (!audio) return;
   const start = audio.volume;
@@ -204,9 +205,9 @@ async function fadeTo(audio, target = 1, duration = 200) {
   });
 }
 
-
+/* ===================== 组件 ===================== */
 export default function App() {
-  // —— 入口暗号门 ——
+  /* —— 入口暗号门 —— */
   const [unlocked, setUnlocked] = useState(
     typeof window !== "undefined" && localStorage.getItem("gate_ok") === "1"
   );
@@ -222,14 +223,19 @@ export default function App() {
   }, [unlocked]);
   if (!unlocked) return <div style={{ padding: 20 }}>未授权访问</div>;
 
-  // —— 正式逻辑 ——
+  /* —— 页面状态 —— */
   const [rows, setRows] = useState([]);
   const [map, setMap] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [city, setCity] = useState("");
   const [status, setStatus] = useState("");
 
-  // 主播放器
+  // 顶部天数 & 便签
+  const [days] = useState(daysSince("2018-04-01"));
+  const [showNote, setShowNote] = useState(false);
+  const [note] = useState(() => pickRandomNote(DAILY_NOTES));
+
+  // 播放器
   const audioRef = useRef(null);
   const [currentTrack, setCurrentTrack] = useState(null); // { name, city, url, playing, muted, cur, dur, seeking }
   const lastNonZeroVol = useRef(1);
@@ -238,7 +244,7 @@ export default function App() {
   const bgmRef = useRef(null);
   const bgmReady = useRef(false);
 
-  // 修复默认 marker 图标
+  /* —— Leaflet 默认图标修复 —— */
   useEffect(() => {
     try {
       // eslint-disable-next-line no-underscore-dangle
@@ -251,24 +257,25 @@ export default function App() {
     } catch {}
   }, []);
 
-  // 初始化地图 + 尺寸刷新
+  /* —— 初始化地图 —— */
   useEffect(() => {
     if (map) return;
     const m = L.map("map", { worldCopyJump: true });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "© OpenStreetMap",
-      opacity: 0.9,       // 让地图微透明
+      opacity: 0.9,
     }).addTo(m);
     m.setView([20, 0], 2);
     setMap(m);
     setTimeout(() => m.invalidateSize(), 0);
+
     const onResize = () => m.invalidateSize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [map]);
 
-  // 拉取 Google Sheet
+  /* —— 拉取 Google Sheet —— */
   useEffect(() => {
     (async () => {
       try {
@@ -279,7 +286,7 @@ export default function App() {
           city: r.city,
           name: r.name,
           category: r.category,
-          status: r.status,
+          status: r.status, // visited / want / others
           lat: toNum(r.lat),
           lon: toNum(r.lon),
           image_url: r.image_url,
@@ -295,26 +302,22 @@ export default function App() {
     })();
   }, []);
 
-  // 过滤数据
+  /* —— 过滤 —— */
   const list = useMemo(() => {
-    return rows.filter(
-      (r) => (!city || r.city === city) && (!status || r.status === status)
-    );
+    return rows.filter((r) => (!city || r.city === city) && (!status || r.status === status));
   }, [rows, city, status]);
 
-  // 背景 BGM 控制
+  /* —— 背景 BGM 控制 —— */
   const playBGM = async () => {
     const b = bgmRef.current;
     if (!b || !BGM_URL) return;
     try {
       if (b.src !== BGM_URL) b.src = BGM_URL;
-      b.volume = 0.4; // 默认稍微小一点
+      b.volume = 0.4;
       await b.play();
       bgmReady.current = true;
-    } catch (e) {
-      // 移动端可能被策略拦截，等用户第一次交互后才会放
+    } catch {
       bgmReady.current = false;
-      // console.warn("BGM autoplay blocked:", e);
     }
   };
   const fadePauseBGM = async () => {
@@ -335,10 +338,9 @@ export default function App() {
     } catch {}
   };
 
-  // 页面加载尝试播放 BGM（被阻止也没关系）
   useEffect(() => {
     playBGM();
-    // 第一次用户点击页面时再尝试一次
+    // 首次用户交互再尝试一次
     const once = () => {
       if (!bgmReady.current) playBGM();
       window.removeEventListener("click", once);
@@ -352,17 +354,16 @@ export default function App() {
     };
   }, []);
 
-  // 切歌（带淡入淡出）+ 暂停 BGM
+  /* —— 切歌（带淡入淡出） —— */
   const playTrack = async (url, meta) => {
     const a = audioRef.current;
     if (!a || !url) return;
 
-    // 先淡出并暂停 BGM
-    await fadePauseBGM();
+    await fadePauseBGM(); // 先淡出 BGM
 
     try {
       if (!a.paused && !a.muted && a.volume > 0) {
-        await fadeTo(a, 0, 200); // 淡出
+        await fadeTo(a, 0, 200);
       }
       if (a.src !== url) a.src = url;
 
@@ -384,7 +385,7 @@ export default function App() {
       if (a.volume > 0) lastNonZeroVol.current = a.volume;
       a.volume = 0;
       await a.play();
-      await fadeTo(a, lastNonZeroVol.current || 1, 200); // 淡入
+      await fadeTo(a, lastNonZeroVol.current || 1, 200);
 
       setCurrentTrack((t) => ({
         ...(t || {}),
@@ -410,7 +411,7 @@ export default function App() {
     }
   };
 
-  // 渲染标记
+  /* —— 渲染标记 —— */
   useEffect(() => {
     if (!map) return;
 
@@ -463,18 +464,12 @@ export default function App() {
     }
   }, [map, list]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cities = useMemo(
-    () => Array.from(new Set(rows.map((r) => r.city))).filter(Boolean).sort(),
-    [rows]
-  );
-
-  // 控制：播放/暂停、静音、进度
+  /* —— 播放器控制 —— */
   const togglePlay = async () => {
     const a = audioRef.current;
     if (!a) return;
     try {
       if (a.paused) {
-        // 播主曲目 → 要暂停 BGM
         await fadePauseBGM();
         if (!a.muted) {
           if (a.volume > 0) lastNonZeroVol.current = a.volume;
@@ -484,9 +479,8 @@ export default function App() {
         } else {
           await a.play();
         }
-        setCurrentTrack((t) => t ? { ...t, playing: true } : t);
+        setCurrentTrack((t) => (t ? { ...t, playing: true } : t));
       } else {
-        // 暂停主曲目 → 恢复 BGM
         if (!a.muted) {
           await fadeTo(a, 0, 200);
           a.pause();
@@ -494,8 +488,7 @@ export default function App() {
         } else {
           a.pause();
         }
-        setCurrentTrack((t) => t ? { ...t, playing: false } : t);
-        // 让 BGM 回来
+        setCurrentTrack((t) => (t ? { ...t, playing: false } : t));
         await fadeResumeBGM();
       }
     } catch (e) {
@@ -513,21 +506,20 @@ export default function App() {
       if (a.volume > 0) lastNonZeroVol.current = a.volume;
       a.muted = true;
     }
-    setCurrentTrack((t) => t ? { ...t, muted: a.muted } : t);
+    setCurrentTrack((t) => (t ? { ...t, muted: a.muted } : t));
   };
 
   const onLoadedMetadata = () => {
     const a = audioRef.current;
     if (!a) return;
-    setCurrentTrack((t) => t ? { ...t, dur: Number.isFinite(a.duration) ? a.duration : 0 } : t);
+    setCurrentTrack((t) => (t ? { ...t, dur: Number.isFinite(a.duration) ? a.duration : 0 } : t));
   };
-  const [days, setDays] = useState(daysSince("2018-04-01"));
+
   const onTimeUpdate = () => {
     const a = audioRef.current;
     if (!a) return;
     setCurrentTrack((t) => {
       if (!t || t.seeking) return t;
-      // 蓝色进度条填充
       const el = document.querySelector(".seek");
       if (el && t.dur) {
         const p = Math.min(1, a.currentTime / t.dur);
@@ -542,51 +534,60 @@ export default function App() {
     if (!a) return;
     const v = Number(e.target.value);
     a.currentTime = v;
-    setCurrentTrack((t) => t ? { ...t, cur: v, seeking: false } : t);
+    setCurrentTrack((t) => (t ? { ...t, cur: v, seeking: false } : t));
   };
-  const onSeekStart = () => setCurrentTrack((t) => t ? { ...t, seeking: true } : t);
+  const onSeekStart = () => setCurrentTrack((t) => (t ? { ...t, seeking: true } : t));
   const onSeekEnd = (e) => onSeek(e);
+
+  /* ===================== UI ===================== */
+  const cities = useMemo(
+    () => Array.from(new Set(rows.map((r) => r.city))).filter(Boolean).sort(),
+    [rows]
+  );
 
   return (
     <div className="page">
-    <header className="topbar">
-      {/* 左侧：标题 */}
-      <div className="top-left">
-        <div className="title-wrap">
-          <h1 className="title-main">雨在想你</h1>
-          <div className="title-sub">我也在想你❤</div>
+      <header className="topbar">
+        {/* 左侧：标题 */}
+        <div className="top-left">
+          <div className="title-wrap">
+            <h1 className="title-main">雨在想你</h1>
+            <div className="title-sub">我也在想你❤</div>
+          </div>
         </div>
-      </div>
 
-      {/* 中间：居中显示天数 */}
-      <div className="top-center">
-        今天是遇到姐姐的第 <strong>{days}</strong> 天，今天也要开心哦 🥰
-      </div>
+        {/* 中间：居中显示天数 */}
+        <div className="top-center">
+          今天是遇到姐姐的第 <strong>{days}</strong> 天，今天也要开心哦 🥰
+        </div>
 
-      {/* 右侧：筛选 */}
-      <div className="top-right filters">
-        <select value={city} onChange={(e) => setCity(e.target.value)}>
-          <option value="">全部城市</option>
-          {cities.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">全部状态</option>
-          <option value="visited">去过</option>
-          <option value="want">想去</option>
-          <option value="others">其他</option>
-        </select>
-      </div>
-    </header>
+        {/* 右侧：筛选 */}
+        <div className="top-right filters">
+          <select value={city} onChange={(e) => setCity(e.target.value)}>
+            <option value="">全部城市</option>
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="">全部状态</option>
+            <option value="visited">去过</option>
+            <option value="want">想去</option>
+            <option value="others">其他</option>
+          </select>
+        </div>
+      </header>
 
+      {/* 地图 */}
       <div id="map" className="map-full" />
-      
+
       {/* 便签开关按钮 */}
       <button
         className={"note-toggle" + (showNote ? " active" : "")}
         aria-label={showNote ? "关闭便签" : "打开便签"}
-        onClick={() => setShowNote(v => !v)}
+        onClick={() => setShowNote((v) => !v)}
         title="每日便签"
       >
         📌
@@ -600,13 +601,15 @@ export default function App() {
             aria-label="关闭"
             title="关闭"
             onClick={() => setShowNote(false)}
-          >×</button>
+          >
+            ×
+          </button>
           <div className="pin" />
           <div className="note-text">{note}</div>
         </div>
       )}
 
-      {/* 悬浮播放器（同一行展示，窄屏自动换行） */}
+      {/* 悬浮播放器 */}
       <div className="floating-player">
         <button onClick={togglePlay} className="player-btn">
           {currentTrack?.playing ? "⏸︎ 暂停" : "▶︎ 播放"}
@@ -616,7 +619,9 @@ export default function App() {
         </button>
 
         <div className="one-line">
-          {currentTrack ? `正在播放：${currentTrack.name} · ${currentTrack.city}` : "未选择音乐"}
+          {currentTrack
+            ? `正在播放：${currentTrack.name} · ${currentTrack.city}`
+            : "未选择音乐"}
         </div>
 
         <div className="player-progress">
