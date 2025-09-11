@@ -38,19 +38,20 @@ body {
 }
 
 /* ========= Topbar（玻璃） ========= */
-.topbar{
+.topbar {
   position: sticky;
   top: 0;
   z-index: 100;
   display: grid;
-  grid-template-columns: 1fr auto 1fr; /* 左 1fr | 中 auto | 右 1fr */
+  grid-template-columns: 1fr auto 1fr;   /* 左 1fr | 中 auto | 右 1fr */
   align-items: center;
+  align-content: start; /* 保证背景覆盖两行 */
   gap: 12px;
-  padding: 12px 18px;
-  height: var(--topbar-h);
+  padding: 12px 18px; 
+  min-height: var(--topbar-h, 72px);
 
-  background: rgba(255,255,255,0.18);
-  border-bottom: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
@@ -310,36 +311,26 @@ body {
 
 /* ========= Responsive ========= */
 @media (max-width: 640px){
-  .topbar {
-    display: flex;
-    flex-direction: column;   /* 改成竖排 */
-    align-items: center;      /* 居中 */
-    gap: 6px;
+  .topbar{
+    grid-template-columns: 1fr auto;
+    grid-auto-rows: auto;
+    row-gap: 6px;
     padding: 10px 12px;
-    width: 100%;
-
-    /* 保证背景延伸包住全部内容 */
-    background: rgba(255,255,255,0.18);
-    border-bottom: 1px solid rgba(255,255,255,0.25);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
-
   .top-left  { grid-column: 1 / 2; }
   .top-right { grid-column: 2 / 3; }
   .top-center{
-    width: 100%;              /* 拉满 */
-    text-align: center;       /* 居中 */
-    grid-column: 1 / -1;
+    grid-column: 1 / -1;   /* 占满两列 */
     justify-self: center;
     font-size: 13px;
+    white-space: normal;   /* 允许换行，不会溢出 */
+    text-align: center;    /* 居中显示 */
   }
 
   .filters {
     justify-content: center;
     flex-wrap: wrap;
   }
-
 
   #map, .map-full { height: 100%; } /* 第二行填充不变 */
 
