@@ -320,40 +320,75 @@ body {
 
 /* ========= Responsive ========= */
 @media (max-width: 640px){
+
+  /* 顶栏：竖向栈叠，字体缩小，背景随高度延展（由 ::before 负责） */
   .topbar{
-    grid-template-columns: 1fr;   /* 竖排一列 */
-    row-gap: 6px;
-    padding: 10px 12px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
   }
   .top-left, .top-center, .top-right{
-    justify-self: center;
-    text-align: center;
-    width: 100%;
+    width: 100%; text-align: center;
   }
-  .top-center{
+  .title-main{ font-size: 18px; margin:0; }
+  .title-sub { font-size: 13px; margin:0; }
+  .top-center{ font-size: 12.5px; line-height: 1.4; white-space: normal; }
+
+  /* 筛选：居中+自动换行，按钮缩小一点 */
+  .filters{ justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .filters select{
+    min-height: 32px;
+    padding: 6px 28px 6px 10px;
     font-size: 13px;
-    line-height: 1.4;
-    white-space: normal;     /* 允许换行，避免被挤出 */
   }
 
-  #map, .map-full { height: 100%; } /* 第二行填充不变 */
-
-  .note-toggle{ left: 15px; top: 158px; }
-  .sticky-note{ left: 62px; top: 155px; width: clamp(160px, 60vw, 240px); }
-  .sticky-note .note-text{ font-size: 13px; }
-
-  .floating-player {
-    left: 50%; transform: translateX(-50%);
-    right: auto; bottom: 12px; max-width: 94%;
-    gap: 8px; padding: 8px 10px;
-    flex-wrap: wrap;   /* 不够一行时再换行 */
+  /* 地图：紧贴顶栏，不要外边距；高度为整屏-顶栏-播放器的空间 */
+  #map, .map-full{
+    margin: 0; border-radius: 0;
+    height: calc(100vh - (128px + 72px)); /* 约等于(顶栏高度+播放器区)，可按实测微调 */
   }
-  .one-line { max-width: 100%; }
-  .seek { width: 150px; }
+
+  /* Leaflet 缩放控件整体下移，避免跟标题/筛选打架 */
+  .leaflet-top.leaflet-left{ top: 72px; }
+
+  /* 悬浮播放器：底部吸附，避让安全区，横排不换行 */
+  .floating-player{
+    left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
+    transform: none;
+    max-width: none;
+    gap: 8px; padding: 10px 12px;
+    flex-wrap: nowrap;
+  }
+  .one-line{ max-width: 40vw; }    /* 文案限制宽度，避免挤爆 */
+  .seek{ width: 34vw; }            /* 进度条按屏宽适配 */
+
+  /* 便签按钮与浮窗：统一下移，避开缩放控件与顶栏 */
+  .note-toggle{ top: 158px; left: 12px; }
+  .sticky-note{ top: 155px; left: 56px; width: clamp(160px, 64vw, 260px); }
+
+  /* 便签在浅色背景的对比：移动端再加一点暗遮罩，提升可读性 */
+  .sticky-note{
+    background: linear-gradient(to bottom right, rgba(20,20,20,.55), rgba(40,40,40,.35));
+    color: rgba(255,255,255,.92);
+    text-shadow: 0 1px 3px rgba(0,0,0,.55);
+    border: 1px solid rgba(255,255,255,.25);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+  }
+  .sticky-note .note-text{
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35), 0 0 6px rgba(255,255,255,.12);
+  }
+
+  /* 禁止页面整体出现双向滚动条抖动 */
+  html, body, #root, .page{ height:100%; overflow:hidden; }
 }
 
-/* 如果需要让筛选按钮在窄屏居中排布 */
-.filters{ display:flex; gap:10px; flex-wrap:wrap; }
-@media (max-width: 640px){
-  .filters{ justify-content:center; }
+/* ========== 细微优化（通用） ========== */
+/* 顶栏下方加一条很淡的阴影，和地图分层更清楚 */
+.topbar{ box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+/* 便签按钮再轻一点的磨砂 */
+.note-toggle{
+  background: rgba(255,255,255,.62);
+  border: 1px solid rgba(255,255,255,.35);
 }
