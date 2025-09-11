@@ -38,30 +38,14 @@ body {
 }
 
 /* ========= Topbar（玻璃） ========= */
-.topbar{
-  position: sticky;         /* 保持吸顶 */
-  top: 0;
-  z-index: 100;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;  /* 左 | 中 | 右 */
-  align-items: center;
-  gap: 12px;
-  padding: 12px 18px;
-  /* 注意：这里不要再写背景/模糊/边框了，放到 ::before 去铺满整个高度 */
-  overflow: visible;         /* 防止子元素外溢被裁切 */
-}
-
-/* ✅ 玻璃背景放到伪元素，自动随高度延展，永远覆盖所有行 */
+.topbar{ position: sticky; top:0; z-index:999; position:relative; isolation:isolate; }
 .topbar::before{
-  content: "";
-  position: absolute;
-  inset: 0;  /* top/right/bottom/left 全 0，铺满 header 实际高度 */
-  background: rgba(255,255,255,0.18);
-  border-bottom: 1px solid rgba(255,255,255,0.25);
+  content:""; position:absolute; inset:0;
+  background: rgba(255,255,255,.18);
+  border-bottom: 1px solid rgba(255,255,255,.25);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  pointer-events: none;      /* 不挡交互 */
-  z-index: -1;               /* 放到内容后面 */
+  pointer-events:none; z-index:-1;
 }
 
 
@@ -319,65 +303,48 @@ body {
 
 
 /* ========= Responsive ========= */
-/* ===== 移动端重排：左标题｜右筛选｜第二行是天数 ===== */
-@media (max-width: 640px){
+@media (max-width:640px){
+
+  /* A. 顶栏布局：左标题｜右筛选；第N天独占一行，玻璃完全覆盖 */
   .topbar{
-    position: sticky; top: 0; z-index: 999;
-    display: grid;
-    grid-template-columns: 1fr auto;   /* 左 | 右 */
-    grid-auto-rows: auto;
-    align-items: center;
-    gap: 8px;
-    padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
-    isolation: isolate;                /* 玻璃背景不被地图遮住 */
+    display:grid;
+    grid-template-columns: 1fr auto;  /* 左|右 */
+    grid-auto-rows:auto;
+    align-items:center;
+    gap:8px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 12px;  /* 加了底部 12px，防止压线 */
   }
-  .topbar::before{
-    content:""; position:absolute; inset:0;
-    background: rgba(255,255,255,0.18);
-    border-bottom: 1px solid rgba(255,255,255,0.25);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    pointer-events:none; z-index:-1;
-  }
-
-  /* 1) 标题在左边（不居中） */
-  .top-left{
-    grid-column: 1 / 2;
-    justify-self: start;
-    text-align: left;
-  }
-  .title-main{ font-size: 18px; margin: 0; }
-  .title-sub { font-size: 13px; margin: 0; }
-
-  /* 2) 全部城市/全部状态在右边 */
-  .top-right{
-    grid-column: 2 / 3;
-    justify-self: end;
-  }
-  .filters{ display:flex; gap:8px; flex-wrap: nowrap; }
-  .filters select{
-    min-height: 32px;
-    padding: 6px 28px 6px 10px;
-    font-size: 13px;
-  }
-
-  /* 3) “遇到姐姐第 N 天”单独占一行，背景玻璃完全覆盖，不会被压着 */
+  .top-left{ grid-column:1/2; justify-self:start; text-align:left; }
+  .top-right{ grid-column:2/3; justify-self:end; }
   .top-center{
-    grid-column: 1 / -1;       /* 占满两列 */
-    justify-self: center;
-    text-align: center;
-    font-size: 13px;
-    line-height: 1.4;
-    white-space: normal;       /* 允许换行 */
-    padding-top: 2px;          /* 和上一行留点缝 */
+    grid-column:1/-1;           /* 占满两列 */
+    justify-self:center;
+    text-align:center;
+    font-size:13px; line-height:1.4;
+    white-space:normal;
+    margin-top:2px;             /* 与上面留缝，避免“压着”边线 */
   }
 
-  /* 地图紧贴顶栏，不叠压（按你页面实际可微调这行数值） */
-  #map, .map-full{
-    margin: 0; border-radius: 0;
-    height: calc(100vh - 210px); /* 顶栏两行+筛选大约 ~210px */
-  }
+  /* B. Leaflet 缩放控件整体下移，便签按钮再往下，彻底避开重叠 */
+  .leaflet-top.leaflet-left{ top: 132px; }     /* 你那版大多屏幕合适，如仍顶到可+10递增 */
+  .note-toggle{ top: 156px; left: 12px; }      /* 跟着缩放控件整体再往下 */
 
-  /* Leaflet 缩放控件整体下移，避免顶到标题/天数 */
-  .leaflet-top.leaflet-left{ top: 76px; }
+  /* C. 播放器不撞边：左右内边距加大，时间与进度条留白 */
+  .floating-player{
+    left:12px; right:12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    padding: 12px 16px;         /* 增加左右 padding，避免左侧时间贴边 */
+    gap:10px; flex-wrap:nowrap;
+  }
+  .player-progress{ display:flex; align-items:center; gap:10px; }
+  .player-progress .time{ width:46px; text-align:center; }
+  .seek{ width: 34vw; margin: 0 4px; }        /* 给手柄留 4px 不会顶到容器 */
+}
+
+/* 便签在浅色底下的可读性（保留微光但不刺眼） */
+.sticky-note{
+  color: rgba(255,255,255,.92);
+  text-shadow: 0 1px 2px rgba(0,0,0,.35), 0 0 6px rgba(255,255,255,.10);
+  background: linear-gradient(to bottom right, rgba(20,20,20,.52), rgba(40,40,40,.32));
+  border:1px solid rgba(255,255,255,.25);
 }
