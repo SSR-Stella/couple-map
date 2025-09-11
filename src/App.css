@@ -318,48 +318,63 @@ body {
 
 
 /* ========= Responsive ========= */
-@media (max-width:640px){
+@media (max-width: 640px){
 
-  /* A. 顶栏布局：左标题｜右筛选；第N天独占一行，玻璃完全覆盖 */
+  /* 顶栏：两行布局（第1行：左标题+右筛选；第2行：天数） */
   .topbar{
-    display:grid;
-    grid-template-columns: 1fr auto;  /* 左|右 */
-    grid-auto-rows:auto;
-    align-items:center;
-    gap:8px;
-    padding: calc(10px + env(safe-area-inset-top)) 12px 12px;  /* 加了底部 12px，防止压线 */
+    position: sticky; top: 0; z-index: 1000;
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 8px 10px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 12px;
   }
-  .top-left{ grid-column:1/2; justify-self:start; text-align:left; }
-  .top-right{ grid-column:2/3; justify-self:end; }
+  .topbar::before{
+    content: "";
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,.18);
+    border-bottom: 1px solid rgba(255,255,255,.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    pointer-events: none; z-index: -1;
+  }
+
+  /* 第1行：左标题、右筛选 */
+  .top-left  { grid-column: 1 / 2; grid-row: 1; justify-self: start; text-align: left; }
+  .top-right { grid-column: 2 / 3; grid-row: 1; justify-self: end; }
+  .title-main{ font-size: 18px; margin: 0; }
+  .title-sub { font-size: 13px; margin: 0; }
+
+  .filters{ display:flex; gap:8px; flex-wrap: nowrap; }
+  .filters select{
+    min-height: 32px;
+    padding: 6px 28px 6px 10px;
+    font-size: 13px;
+  }
+
+  /* 第2行：天数提示 */
   .top-center{
-    grid-column:1/-1;           /* 占满两列 */
-    justify-self:center;
-    text-align:center;
-    font-size:13px; line-height:1.4;
-    white-space:normal;
-    margin-top:2px;             /* 与上面留缝，避免“压着”边线 */
+    grid-column: 1 / -1; grid-row: 2;
+    justify-self: center;
+    text-align: center;
+    font-size: 13px; line-height: 1.4;
+    margin-top: 2px;
+    white-space: normal;
   }
 
-  /* B. Leaflet 缩放控件整体下移，便签按钮再往下，彻底避开重叠 */
-  .leaflet-top.leaflet-left{ top: 132px; }     /* 你那版大多屏幕合适，如仍顶到可+10递增 */
-  .note-toggle{ top: 156px; left: 12px; }      /* 跟着缩放控件整体再往下 */
+  /* Leaflet 缩放控件整体下移，避开顶栏 */
+  .leaflet-top.leaflet-left{ top: 160px; }
 
-  /* C. 播放器不撞边：左右内边距加大，时间与进度条留白 */
-  .floating-player{
-    left:12px; right:12px;
-    bottom: calc(12px + env(safe-area-inset-bottom));
-    padding: 12px 16px;         /* 增加左右 padding，避免左侧时间贴边 */
-    gap:10px; flex-wrap:nowrap;
+  /* 便签按钮也下移，避免重叠 */
+  .note-toggle{ top: 184px; left: 12px; }
+  .sticky-note{ top: 172px; left: 56px; }
+
+  /* 地图高度调整，避免顶栏挡住 */
+  #map, .map-full{
+    margin: 0; border-radius: 0;
+    height: calc(100vh - 220px);  /* 按机型可微调这个数 */
   }
-  .player-progress{ display:flex; align-items:center; gap:10px; }
-  .player-progress .time{ width:46px; text-align:center; }
-  .seek{ width: 34vw; margin: 0 4px; }        /* 给手柄留 4px 不会顶到容器 */
-}
-
-/* 便签在浅色底下的可读性（保留微光但不刺眼） */
-.sticky-note{
-  color: rgba(255,255,255,.92);
-  text-shadow: 0 1px 2px rgba(0,0,0,.35), 0 0 6px rgba(255,255,255,.10);
-  background: linear-gradient(to bottom right, rgba(20,20,20,.52), rgba(40,40,40,.32));
-  border:1px solid rgba(255,255,255,.25);
 }
