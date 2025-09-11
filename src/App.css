@@ -327,11 +327,6 @@ body {
     text-align: center;    /* 居中显示 */
   }
 
-  .filters {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
   #map, .map-full { height: 100%; } /* 第二行填充不变 */
 
   .note-toggle{ left: 15px; top: 158px; }
