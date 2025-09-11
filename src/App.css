@@ -224,26 +224,34 @@ body {
 }
 
 /* === 便签浮窗 === */
-.sticky-note{
+.sticky-note {
   position: fixed;
-  left: 70px;               /* 与按钮错位一点；放右侧就用 right:70px 并去掉 left */
-  top: 88px;
+  left: 70px;
+  top: 160px;     /* 和按钮对齐 */
   z-index: 2200;
 
-  width: clamp(180px, 28vw, 260px);
-  min-height: 86px;
-  padding: 14px 16px 16px;
+  width: clamp(200px, 30vw, 300px);
+  min-height: 100px;
+  padding: 20px;
 
-  /* 玻璃磨砂风 */
-  background: rgba(255,255,255,.22);
-  border: 1px solid rgba(255,255,255,.35);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+
+  display: flex;
+  align-items: center;      /* ✅ 垂直居中 */
+  justify-content: center;  /* ✅ 水平居中 */
 
   font-family: -apple-system,BlinkMacSystemFont,sans-serif;
+  color: #fff;              /* ✅ 和 topbar 一致 */
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
+
 /* 入场动画：淡入 + 轻微上浮 */
 .note-animate-in{
   animation: noteFadeUp .28s ease-out both;
