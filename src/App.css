@@ -330,7 +330,7 @@ body {
     grid-template-rows: auto auto;
     align-items: center;
     gap: 8px 10px;
-    padding: calc(10px + env(safe-area-inset-top)) 12px 12px;
+    padding: calc(10px + env(safe-area-inset-top)) 18px 12px;
   }
   .topbar::before{
     content: "";
@@ -366,11 +366,11 @@ body {
   }
 
   /* Leaflet 缩放控件整体下移，避开顶栏 */
-  .leaflet-top.leaflet-left{ top: 160px; }
+  .leaflet-top.leaflet-left{ top: 120px; left: 12px; }
 
   /* 便签按钮也下移，避免重叠 */
-  .note-toggle{ top: 184px; left: 12px; }
-  .sticky-note{ top: 172px; left: 56px; }
+  .note-toggle{ top: 150px; left: 12px; }
+  .sticky-note{ top: 145px; left: 56px; }
 
   /* 地图高度调整，避免顶栏挡住 */
   #map, .map-full{
