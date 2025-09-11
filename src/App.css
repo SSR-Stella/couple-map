@@ -310,18 +310,36 @@ body {
 
 /* ========= Responsive ========= */
 @media (max-width: 640px){
-  .topbar{
-    grid-template-columns: 1fr auto;
-    grid-auto-rows: auto;
-    row-gap: 6px;
+  .topbar {
+    display: flex;
+    flex-direction: column;   /* 改成竖排 */
+    align-items: center;      /* 居中 */
+    gap: 6px;
+    padding: 10px 12px;
+    width: 100%;
+
+    /* 保证背景延伸包住全部内容 */
+    background: rgba(255,255,255,0.18);
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
+
   .top-left  { grid-column: 1 / 2; }
   .top-right { grid-column: 2 / 3; }
   .top-center{
+    width: 100%;              /* 拉满 */
+    text-align: center;       /* 居中 */
     grid-column: 1 / -1;
     justify-self: center;
     font-size: 13px;
   }
+
+  .filters {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
 
   #map, .map-full { height: 100%; } /* 第二行填充不变 */
 
