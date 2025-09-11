@@ -59,7 +59,7 @@ body {
 .top-right { justify-self: end;   }
 .top-center{
   justify-self: center;
-  color: #fff;
+  color: #f5f5f7;
   font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
@@ -68,8 +68,8 @@ body {
 .top-center strong{ font-weight: 800; }
 
 .title-wrap { display: flex; flex-direction: column; }
-.title-main { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
-.title-sub  { font-size: 14px; font-weight: 500; color: #fff; margin-top: 2px; }
+.title-main { margin: 0; font-size: 20px; font-weight: 700; color: #f5f5f7; }
+.title-sub  { font-size: 14px; font-weight: 500; color: #f5f5f7; margin-top: 2px; }
 
 /* ========= Filters（黑字） ========= */
 .filters { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -246,7 +246,7 @@ body {
   justify-content: center;  /* ✅ 水平居中 */
 
   font-family: -apple-system,BlinkMacSystemFont,sans-serif;
-  color: #fff;              /* ✅ 和 topbar 一致 */
+  color: #f5f5f7;              /* ✅ 和 topbar 一致 */
   font-size: 14px;
   font-weight: 600;
   text-align: center;
@@ -282,13 +282,26 @@ body {
   width:10px; height:10px; border-radius:50%;
   background:#ff6b6b; box-shadow:0 2px 6px rgba(0,0,0,.25);
 }
-.sticky-note .note-text{
-  margin-top: 6px; color:#111; font-weight: 700;
-  font-size: 14px; line-height: 1.35;
-  /* 最多三行超出省略 */
-  display:-webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+.sticky-note .note-text {
+  margin-top: 6px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: center;
+
+  color: #f5f5f7; /* 高级白 */
+  /* 多层 text-shadow 做出柔和光晕效果 */
+  text-shadow: 
+    0 0 2px rgba(255,255,255,0.7),
+    0 0 6px rgba(255,255,255,0.6),
+    0 0 12px rgba(255,255,255,0.4);
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 
 /* ========= Responsive ========= */
 @media (max-width: 640px){
