@@ -38,16 +38,31 @@ body {
 }
 
 /* ========= Topbar（玻璃） ========= */
-.topbar{ position: sticky; top:0; z-index:999; position:relative; isolation:isolate; }
-.topbar::before{
-  content:""; position:absolute; inset:0;
-  background: rgba(255,255,255,.18);
-  border-bottom: 1px solid rgba(255,255,255,.25);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  pointer-events:none; z-index:-1;
+.topbar{
+  position: sticky;         /* 保持吸顶 */
+  top: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* 左 | 中 | 右 */
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  /* 注意：这里不要再写背景/模糊/边框了，放到 ::before 去铺满整个高度 */
+  overflow: visible;         /* 防止子元素外溢被裁切 */
 }
 
+/* ✅ 玻璃背景放到伪元素，自动随高度延展，永远覆盖所有行 */
+.topbar::before{
+  content: "";
+  position: absolute;
+  inset: 0;  /* top/right/bottom/left 全 0，铺满 header 实际高度 */
+  background: rgba(255,255,255,0.18);
+  border-bottom: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  pointer-events: none;      /* 不挡交互 */
+  z-index: -1;               /* 放到内容后面 */
+}
 
 .top-left  { justify-self: start; }
 .top-right { justify-self: end;   }
