@@ -230,16 +230,21 @@ body {
   top: 160px;     /* 和按钮对齐 */
   z-index: 2200;
 
-  width: clamp(200px, 30vw, 300px);
-  min-height: 100px;
-  padding: 20px;
+  width: clamp(180px, 28vw, 260px);
+  min-height: 86px;
+  padding: 14px 16px 16px;
 
-  background: rgba(255,255,255,.18);
-  border: 1px solid rgba(255,255,255,.25);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.2);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+ /* 背景：玻璃磨砂 + 渐变遮罩，避免浅色背景太亮 */
+  background: linear-gradient(
+      to bottom right,
+      rgba(20,20,20,0.55),   /* 深一点，保证对比度 */
+      rgba(40,40,40,0.35)
+    );
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
 
   display: flex;
   align-items: center;      /* ✅ 垂直居中 */
@@ -250,6 +255,7 @@ body {
   font-size: 14px;
   font-weight: 600;
   text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6); /* 微弱阴影，增强可读性 */
 }
 
 /* 入场动画：淡入 + 轻微上浮 */
@@ -319,8 +325,8 @@ body {
 
   #map, .map-full { height: 100%; } /* 第二行填充不变 */
 
-  .note-toggle{ left: 12px; top: 120px; }
-  .sticky-note{ left: 62px; top: 108px; width: clamp(160px, 60vw, 240px); }
+  .note-toggle{ left: 12px; top: 133px; }
+  .sticky-note{ left: 62px; top: 120px; width: clamp(160px, 60vw, 240px); }
   .sticky-note .note-text{ font-size: 13px; }
 
   .floating-player {
