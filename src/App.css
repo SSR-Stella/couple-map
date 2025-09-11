@@ -196,7 +196,7 @@ body {
 .note-toggle{
   position: fixed;
   left: 16px;               /* 放右侧就改成 right:16px 并去掉 left */
-  top: 100px;               /* 视你的 topbar 高度微调 */
+  top: 160px;               /* 视你的 topbar 高度微调 */
   z-index: 2200;
 
   width: 40px; height: 40px; border: none; border-radius: 50%;
