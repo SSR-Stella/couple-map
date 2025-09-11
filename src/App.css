@@ -325,8 +325,8 @@ body {
 
   #map, .map-full { height: 100%; } /* 第二行填充不变 */
 
-  .note-toggle{ left: 12px; top: 163px; }
-  .sticky-note{ left: 62px; top: 160px; width: clamp(160px, 60vw, 240px); }
+  .note-toggle{ left: 15px; top: 158px; }
+  .sticky-note{ left: 62px; top: 155px; width: clamp(160px, 60vw, 240px); }
   .sticky-note .note-text{ font-size: 13px; }
 
   .floating-player {
