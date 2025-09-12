@@ -358,7 +358,7 @@ body {
 @media (max-width:640px){
   /* 统一参数：只改这三个就能整体微调 */
   :root{
-    --ui-top: 14px;   /* 距离“地图容器”顶部 */
+    --ui-top: 50px;   /* 距离“地图容器”顶部 */
     --ui-left: 12px;  /* 距离“地图容器”左侧 */
     --ui-gap: 52px;   /* 🏷️ 相对缩放键的水平间距 */
   }
@@ -427,7 +427,7 @@ body {
   .map-wrap .note-toggle{
     position: absolute !important;     /* 覆盖 PC 端 fixed */
     z-index: 600;
-    left: var(--ui-left) !important;   /* 与缩放控件左对齐 */
+    left: var(--ui-left) + 15px !important;   /* 与缩放控件左对齐 */
     top: calc(var(--ui-top) + var(--zoom-h) + var(--gap)) !important; /* 正下方 */
   }
 
@@ -435,7 +435,7 @@ body {
   .map-wrap .sticky-note{
     position: absolute !important;
     z-index: 650;
-    left: var(--ui-left) + 150px !important;
+    left: var(--ui-left) + 80px !important;
     top: calc(var(--ui-top) + var(--zoom-h) + var(--gap) + 18px) !important;
   }
 }
