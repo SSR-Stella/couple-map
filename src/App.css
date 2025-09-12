@@ -378,7 +378,7 @@ body {
     position: absolute !important; /* 覆盖 PC 端 fixed */
     z-index: 600;
     top: var(--ui-top) !important;
-    left: calc(var(--ui-left) + var(--ui-gap)+50px) !important;
+    left: calc(var(--ui-left) + var(--ui-gap)+200px) !important;
   }
 
   /* 便签浮窗：跟随按钮稍微下移 */
@@ -386,7 +386,7 @@ body {
     position: absolute !important;
     z-index: 650;
     top: calc(var(--ui-top) + 18px) !important;
-    left: calc(var(--ui-left) + var(--ui-gap)+250px) !important;
+    left: calc(var(--ui-left) + var(--ui-gap)+1000px) !important;
   }
 
   /* 播放器：小屏换行保底 */
@@ -427,7 +427,6 @@ body {
   .map-wrap .note-toggle{
     position: absolute !important;     /* 覆盖 PC 端 fixed */
     z-index: 600;
-    left: var(--ui-left)  !important;   /* 与缩放控件左对齐 */
     top: calc(var(--ui-top) + var(--zoom-h) + var(--gap)) !important; /* 正下方 */
   }
 
@@ -435,7 +434,6 @@ body {
   .map-wrap .sticky-note{
     position: absolute !important;
     z-index: 650;
-    left: var(--ui-left)  !important;
     top: calc(var(--ui-top) + var(--zoom-h) + var(--gap) + 18px) !important;
   }
 }
