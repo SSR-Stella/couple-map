@@ -316,29 +316,38 @@ body {
   overflow: hidden;
 }
 
+/* ========= Mobile 专用修正 ========= */
 @media (max-width: 640px){
   .topbar{
-    grid-template-columns: 1fr auto;   /* 左|右 */
-    grid-template-rows: auto auto;     /* 上：标题+筛选；下：天数 */
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
     row-gap: 6px;
-    padding: calc(18px + env(safe-area-inset-top)) 12px 18px; /* 顶部安全区 */
-    min-height: unset;                 /* 让高度完全跟随内容 */
+
+    padding: calc(22px + env(safe-area-inset-top)) 12px 22px; /* ↑单独改移动端 padding */
+    min-height: 120px;        /* 移动端更厚的磨砂玻璃 */
   }
+
   .top-left  { grid-column:1/2; grid-row:1; }
   .top-right { grid-column:2/3; grid-row:1; }
   .top-center{
-    grid-column:1/-1; grid-row:2;     /* 天数占满第二行 */
-    white-space: normal;               /* 需要时可换行 */
-    line-height: 1.4;
-    margin-top: 2px;                   /* 与第一行留缝，避免“压线”错觉 */
+    grid-column:1/-1; grid-row:2;
+    margin-top: 4px;
+    white-space: normal;
   }
 
-  /* 防止地图控件与顶栏/便签重叠，可按需微调 */
-  .leaflet-top.leaflet-left{ top: 128px; left: 12px; }
-  .note-toggle{ top: 128px; left: 12px; }
-  .sticky-note{ top: 118px; left: 56px; }
+  /* 地图控件位置下移，和 🏷️ 对齐 */
+  .leaflet-top.leaflet-left{ 
+    top: 140px !important;   /* 与 topbar 高度匹配 */
+    left: 12px;
+  }
+
+  /* 🏷️ 标签按钮位置同步调整 */
+  .note-toggle{ 
+    top: 140px !important;   /* 保证和地图控件对齐 */
+    left: 60px;              /* 向右一点，避免重叠 */
+  }
+  .sticky-note{ 
+    top: 160px; 
+    left: 60px; 
+  }
 }
-
-/* 保险：地图永远在顶栏玻璃下方，不穿帮 */
-.leaflet-container{ z-index: 0; }
-
