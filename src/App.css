@@ -331,8 +331,8 @@ body {
   :root{
     --ui-top: 50px;         /* ↓ 只在移动端生效：缩放控件距 .map-wrap 顶部 */
     --ui-left: 12px;        /* 缩放控件距 .map-wrap 左侧 */
-    --note-x: 1px;        /* 🏷️ 相对缩放控件的水平位移（保留你的 200px） */
-    --note-popover-x:1px;/* 浮窗相对缩放控件的水平位移（保留你的 1000px） */
+    --note-x: 5px;        /* 🏷️ 相对缩放控件的水平位移（保留你的 200px） */
+    --note-popover-x:30px;/* 浮窗相对缩放控件的水平位移（保留你的 1000px） */
   }
 
   /* ===== 顶栏（保留你原来的布局，但只在移动端加厚/加内边距） ===== */
@@ -366,7 +366,7 @@ body {
   .map-wrap .note-toggle{
     position: absolute !important;       /* 覆盖 PC 的 fixed */
     z-index: 600;
-    top:  calc(var(--ui-top) + 50px) !important;      /* 与缩放控件同高 */
+    top:  calc(var(--ui-top) + 95px) !important;      /* 与缩放控件同高 */
     left: calc(var(--ui-left) + var(--note-x)) !important;  /* 水平右移 */
   }
 
@@ -374,7 +374,7 @@ body {
   .map-wrap .sticky-note{
     position: absolute !important;
     z-index: 650;
-    top:  calc(var(--ui-top) + 50px) !important;  /* 按钮下方 18px */
+    top:  calc(var(--ui-top) + 95px) !important;  /* 按钮下方 18px */
     left: calc(var(--ui-left) + var(--note-popover-x)) !important;
   }
 
