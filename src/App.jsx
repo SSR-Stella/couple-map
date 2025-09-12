@@ -609,16 +609,6 @@ export default function App() {
         )}
       </div>
 
-
-      {/* 便签开关按钮 */}
-      <button
-        className={"note-toggle" + (showNote ? " active" : "")}
-        onClick={() => setShowNote(v => !v)}
-        title="每日便签"
-      >
-        🏷️
-      </button>
-
       {/* 便签浮窗（打开时挂载，带入场动画） */}
       {showNote && (
         <div className="sticky-note note-animate-in">
