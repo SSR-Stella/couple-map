@@ -609,22 +609,6 @@ export default function App() {
         )}
       </div>
 
-      {/* 便签浮窗（打开时挂载，带入场动画） */}
-      {showNote && (
-        <div className="sticky-note note-animate-in">
-          <button
-            className="note-close"
-            aria-label="关闭"
-            title="关闭"
-            onClick={() => setShowNote(false)}
-          >
-            ×
-          </button>
-          <div className="pin" />
-          <div className="note-text">{note}</div>
-        </div>
-      )}
-
       {/* 悬浮播放器 */}
       <div className="floating-player">
         <button onClick={togglePlay} className="player-btn">

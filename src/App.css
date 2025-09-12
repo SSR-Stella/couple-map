@@ -400,3 +400,42 @@ body {
   .player-progress{ order:4; flex:1 1 100%; gap:8px; }
   .seek{ width:100%; margin:0; }
 }
+
+
+/* ======== Mobile：让 🏷️ 正好在缩放控件正下方，左侧对齐 ======== */
+@media (max-width:640px){
+  /* 统一参数：只改这三个变量 + 缩放控件高度即可微调 */
+  :root{
+    --ui-top: 14px;     /* 缩放控件距“地图容器”顶部 */
+    --ui-left: 12px;    /* 缩放控件距“地图容器”左侧 */
+    --zoom-h: 66px;     /* ↓ 缩放控件总高度（两枚按钮+边框），可按实际略调 62~70 */
+    --gap: 8px;         /* 缩放控件与 🏷️ 之间的垂直间距 */
+  }
+
+  /* 让地图缩放控件以 .map-wrap 为定位参照 */
+  .map-wrap{ position: relative; }
+  .map-wrap .leaflet-top.leaflet-left{
+    top: var(--ui-top) !important;
+    left: var(--ui-left) !important;
+  }
+  .map-wrap .leaflet-top.leaflet-left .leaflet-control{
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* 🏷️：与缩放控件“左对齐”，并且正好在其“正下方” */
+  .map-wrap .note-toggle{
+    position: absolute !important;     /* 覆盖 PC 端 fixed */
+    z-index: 600;
+    left: var(--ui-left) !important;   /* 与缩放控件左对齐 */
+    top: calc(var(--ui-top) + var(--zoom-h) + var(--gap)) !important; /* 正下方 */
+  }
+
+  /* 便签：跟随 🏷️ 再往下 18px，避免遮住按钮 */
+  .map-wrap .sticky-note{
+    position: absolute !important;
+    z-index: 650;
+    left: var(--ui-left) !important;
+    top: calc(var(--ui-top) + var(--zoom-h) + var(--gap) + 18px) !important;
+  }
+}
