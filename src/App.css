@@ -366,7 +366,7 @@ body {
   .map-wrap .note-toggle{
     position: absolute !important;       /* 覆盖 PC 的 fixed */
     z-index: 600;
-    top:  var(--ui-top) + 50px !important;      /* 与缩放控件同高 */
+    top:  calc(var(--ui-top) + 50px)important;      /* 与缩放控件同高 */
     left: calc(var(--ui-left) + var(--note-x)) !important;  /* 水平右移 */
   }
 
