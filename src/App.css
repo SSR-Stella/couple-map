@@ -316,56 +316,45 @@ body {
   overflow: hidden;
 }
 
-/* ========= Mobile 专用修正 ========= */
-@media (max-width: 640px){
+/* 让按钮能在地图里绝对定位（PC 不受影响） */
+.map-wrap { position: relative; }
+
+/* ======== Mobile（≤640px）：统一管理 Topbar/缩放键/🏷️/浮窗/播放器 ======== */
+@media (max-width:640px){
+
+  /* ===== 统一参数（只改这里就能整体微调） =====
+     说明：
+     --ui-top / --ui-left   控制“缩放控件”的基准位置（相对于地图容器 .map-wrap）
+     --note-x               🏷️ 相对缩放控件“水平偏移”，你之前用的是 +200px（保留）
+     --note-popover-x       浮窗相对缩放控件“水平偏移”，你之前是 +1000px（保留）
+  */
+  :root{
+    --ui-top: 50px;         /* ↓ 只在移动端生效：缩放控件距 .map-wrap 顶部 */
+    --ui-left: 12px;        /* 缩放控件距 .map-wrap 左侧 */
+    --note-x: 200px;        /* 🏷️ 相对缩放控件的水平位移（保留你的 200px） */
+    --note-popover-x: 1000px;/* 浮窗相对缩放控件的水平位移（保留你的 1000px） */
+  }
+
+  /* ===== 顶栏（保留你原来的布局，但只在移动端加厚/加内边距） ===== */
   .topbar{
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
     row-gap: 6px;
 
-    padding: calc(22px + env(safe-area-inset-top)) 12px 22px; /* ↑单独改移动端 padding */
+    padding: calc(22px + env(safe-area-inset-top)) 12px 22px; /* 移动端额外的安全区+内边距 */
     min-height: 120px;        /* 移动端更厚的磨砂玻璃 */
   }
-
   .top-left  { grid-column:1/2; grid-row:1; }
   .top-right { grid-column:2/3; grid-row:1; }
   .top-center{
     grid-column:1/-1; grid-row:2;
     margin-top: 4px;
-    white-space: normal;
+    white-space: normal; /* 允许换行，避免被挤出玻璃背景 */
   }
 
-  /* 地图控件位置下移，和 🏷️ 对齐 */
-  .leaflet-top.leaflet-left{ 
-    top: 140px !important;   /* 与 topbar 高度匹配 */
-    left: 12px;
-  }
-
-  /* 🏷️ 标签按钮位置同步调整 */
-  .note-toggle{ 
-    top: 140px !important;   /* 保证和地图控件对齐 */
-    left: 60px;              /* 向右一点，避免重叠 */
-  }
-  .sticky-note{ 
-    top: 160px; 
-    left: 60px; 
-  }
-}
-/* 让按钮能在地图里绝对定位（PC 不受影响） */
-.map-wrap{ position: relative; }
-
-/* ======== Mobile：缩放键 & 🏷️ 对齐 + 播放器保底 ======== */
-@media (max-width:640px){
-  /* 统一参数：只改这三个就能整体微调 */
-  :root{
-    --ui-top: 50px;   /* 距离“地图容器”顶部 */
-    --ui-left: 12px;  /* 距离“地图容器”左侧 */
-    --ui-gap: 52px;   /* 🏷️ 相对缩放键的水平间距 */
-  }
-
-  /* Leaflet 缩放键：与地图容器对齐 */
+  /* ===== Leaflet 缩放控件：以 .map-wrap 为参考，统一定位 ===== */
   .map-wrap .leaflet-top.leaflet-left{
-    top: var(--ui-top) !important;
+    top:  var(--ui-top)  !important;
     left: var(--ui-left) !important;
   }
   .map-wrap .leaflet-top.leaflet-left .leaflet-control{
@@ -373,23 +362,23 @@ body {
     margin-left: 0 !important;
   }
 
-  /* 🏷️ 标签按钮：与缩放键同一水平线，向右错开 */
+  /* ===== 🏷️ 按钮：与缩放控件“同一水平线”，仅水平右移（保留你 200px 的效果） ===== */
   .map-wrap .note-toggle{
-    position: absolute !important; /* 覆盖 PC 端 fixed */
+    position: absolute !important;       /* 覆盖 PC 的 fixed */
     z-index: 600;
-    top: var(--ui-top) !important;
-    left: calc(var(--ui-left) + var(--ui-gap)+200px) !important;
+    top:  var(--ui-top) !important;      /* 与缩放控件同高 */
+    left: calc(var(--ui-left) + var(--note-x)) !important;  /* 水平右移 */
   }
 
-  /* 便签浮窗：跟随按钮稍微下移 */
+  /* ===== 浮窗：跟随 🏷️ 稍微下移，同时水平位移更大（保留你 1000px 的效果） ===== */
   .map-wrap .sticky-note{
     position: absolute !important;
     z-index: 650;
-    top: calc(var(--ui-top) + 18px) !important;
-    left: calc(var(--ui-left) + var(--ui-gap)+1000px) !important;
+    top:  calc(var(--ui-top) + 18px) !important;  /* 按钮下方 18px */
+    left: calc(var(--ui-left) + var(--note-popover-x)) !important;
   }
 
-  /* 播放器：小屏换行保底 */
+  /* ===== 播放器：小屏保底换行（PC 样式不变） ===== */
   .floating-player{
     left: 10px; right: 10px; bottom: 12px;
     padding: 8px 10px; gap: 8px;
@@ -399,43 +388,4 @@ body {
   .one-line{ order:3; flex:1 1 100%; max-width:100%; text-align:center; }
   .player-progress{ order:4; flex:1 1 100%; gap:8px; }
   .seek{ width:100%; margin:0; }
-}
-
-
-/* ======== Mobile：让 🏷️ 正好在缩放控件正下方，左侧对齐 ======== */
-@media (max-width:640px){
-  /* 统一参数：只改这三个变量 + 缩放控件高度即可微调 */
-  :root{
-    --ui-top: 40px;     /* 缩放控件距“地图容器”顶部 */
-    --ui-left: 10px;    /* 缩放控件距“地图容器”左侧 */
-    --zoom-h: 66px;     /* ↓ 缩放控件总高度（两枚按钮+边框），可按实际略调 62~70 */
-    --gap: 8px;         /* 缩放控件与 🏷️ 之间的垂直间距 */
-  }
-
-  /* 让地图缩放控件以 .map-wrap 为定位参照 */
-  .map-wrap{ position: relative; }
-  .map-wrap .leaflet-top.leaflet-left{
-    top: var(--ui-top) !important;
-    left: var(--ui-left) !important;
-  }
-  .map-wrap .leaflet-top.leaflet-left .leaflet-control{
-    margin-top: 0 !important;
-    margin-left: 0 !important;
-  }
-
-  /* 🏷️：与缩放控件“左对齐”，并且正好在其“正下方” */
-  .map-wrap .note-toggle{
-    position: absolute !important;     /* 覆盖 PC 端 fixed */
-    z-index: 600;
-    left: calc(var(--ui-left) + var(--ui-gap)+200px) !important;
-    top: calc(var(--ui-top) + var(--zoom-h) + var(--gap)) !important; /* 正下方 */
-  }
-
-  /* 便签：跟随 🏷️ 再往下 18px，避免遮住按钮 */
-  .map-wrap .sticky-note{
-    position: absolute !important;
-    z-index: 650;
-    left: calc(var(--ui-left) + var(--ui-gap)+400px) !important;
-    top: calc(var(--ui-top) + var(--zoom-h) + var(--gap) + 18px) !important;
-  }
 }
