@@ -351,3 +351,72 @@ body {
     left: 60px; 
   }
 }
+
+
+/* ========== Mobile：地图缩放控件 & 🏷️ 完全对齐 ========== */
+@media (max-width:640px){
+  /* 统一一个“对齐基准”，方便以后只改数字就全同步 */
+  :root{
+    --ui-top: 140px;   /* 控件距顶部的高度 */
+    --ui-left: 12px;   /* 控件距左侧的内边距 */
+    --ui-gap: 52px;    /* 🏷️ 与缩放控件之间的水平间距（避免重叠） */
+  }
+
+  /* Leaflet 自带 margin 会把控件往里挤，这里先归零，再用我们自己的对齐量 */
+  .leaflet-top.leaflet-left{
+    top: var(--ui-top) !important;
+    left: var(--ui-left) !important;
+  }
+  .leaflet-top.leaflet-left .leaflet-control{
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* 🏷️ 标签按钮与缩放控件对齐在同一高度，水平向右错开一点避免重叠 */
+  .note-toggle{
+    top: var(--ui-top) !important;
+    left: calc(var(--ui-left) + var(--ui-gap)) !important;
+  }
+  /* 便签到这里展开位置也跟着错开，避免遮住缩放键 */
+  .sticky-note{
+    top: calc(var(--ui-top) + 18px) !important; /* 比按钮略低一点更顺眼 */
+    left: calc(var(--ui-left) + var(--ui-gap)) !important;
+  }
+}
+
+
+/* ========== Mobile：播放器保底适配（不挡、不溢出） ========== */
+@media (max-width:640px){
+  /* 容器允许换行，避免被挤出屏幕；左右留白更紧凑一点 */
+  .floating-player{
+    left: 10px; right: 10px;
+    padding: 8px 10px;
+    gap: 8px;
+    flex-wrap: wrap;         /* 关键：小屏可换行 */
+  }
+
+  /* 按钮稍微缩小一点，避免一行挤不下 */
+  .player-btn{
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  /* 歌名这块占满一行，避免把按钮和进度条挤掉 */
+  .one-line{
+    order: 3;
+    flex: 1 1 100%;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  /* 进度条占一整行，手柄不再顶边 */
+  .player-progress{
+    order: 4;
+    flex: 1 1 100%;
+    gap: 8px;
+  }
+  .seek{
+    width: 100%;
+    margin: 0;
+  }
+}
