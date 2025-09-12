@@ -580,8 +580,35 @@ export default function App() {
         </div>
       </header>
 
-      {/* 地图 */}
-      <div id="map" className="map-full" />
+      {/* 地图包一层，作为定位参考 */}
+      <div className="map-wrap">
+        <div id="map" className="map-full" />
+
+        {/* 🏷️ 标签按钮：现在在 map 容器里，定位一致 */}
+        <button
+          className={"note-toggle" + (showNote ? " active" : "")}
+          aria-label={showNote ? "关闭便签" : "打开便签"}
+          onClick={() => setShowNote(v => !v)}
+          title="每日便签"
+        >
+          🏷️
+        </button>
+
+        {/* 便签浮窗 */}
+        {showNote && (
+          <div className="sticky-note note-animate-in">
+            <button
+              className="note-close"
+              aria-label="关闭"
+              title="关闭"
+              onClick={() => setShowNote(false)}
+            >×</button>
+            <div className="pin" />
+            <div className="note-text">{note}</div>
+          </div>
+        )}
+      </div>
+
 
       {/* 便签开关按钮 */}
       <button
