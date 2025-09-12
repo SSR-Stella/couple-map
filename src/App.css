@@ -427,6 +427,7 @@ body {
   .map-wrap .note-toggle{
     position: absolute !important;     /* 覆盖 PC 端 fixed */
     z-index: 600;
+    left: calc(var(--ui-left) + var(--ui-gap)+200px) !important;
     top: calc(var(--ui-top) + var(--zoom-h) + var(--gap)) !important; /* 正下方 */
   }
 
@@ -434,6 +435,7 @@ body {
   .map-wrap .sticky-note{
     position: absolute !important;
     z-index: 650;
+    left: calc(var(--ui-left) + var(--ui-gap)+400px) !important;
     top: calc(var(--ui-top) + var(--zoom-h) + var(--gap) + 18px) !important;
   }
 }
